@@ -1,29 +1,42 @@
 const { default: mongoose } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const authSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
+const authSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["User", "Admin"],
+      default: "User",
+    },
+    metamaskId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    profileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserProfile",
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    enum: ["User", "Admin"],
-    default: "user",
-  },
-  metamaskId: {
-    type: String,
-  },
-});
+  { timestamps: true },
+);
 
 authSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
@@ -31,3 +44,5 @@ authSchema.pre("save", async function () {
   const hash = await bcrypt.hash(this.password, 10);
   this.password = hash;
 });
+
+module.exports = mongoose.model("Auth", authSchema);

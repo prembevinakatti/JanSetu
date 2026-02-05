@@ -9,7 +9,7 @@ import IssueManagement from '@/Pages/Admin/IssueManagement'
 import CitizenDashboard from '@/Pages/Citizen/CitizenDashboard'
 import CitizenHomePage from '@/Pages/Citizen/CitizenHomePage'
 import CitizenLogin from '@/Pages/Citizen/CitizenLogin'
-import CitizenProfile from '@/Pages/Citizen/CitizenProfile'
+// import CitizenProfile from '@/Pages/Citizen/CitizenProfile'
 import CitizenRegister from '@/Pages/Citizen/CitizenRegister'
 import GovtSchemesPage from '@/Pages/Citizen/GovtSchemesPage'
 import NearbyIssuesMap from '@/Pages/Citizen/NearbyIssuesMap'
@@ -27,7 +27,7 @@ const AppRoutes = () => {
          <Route path='/citizenlogin' element={<CitizenLogin/>}/>
           <Route path='/citizenregister' element={<CitizenRegister/>}/>
           <Route path='/citizendashboard' element={<CitizenDashboard/>}/>
-        <Route path='/citizenprofile' element={<CitizenProfile/>}/>
+        {/* <Route path='/citizenprofile' element={<CitizenProfile/>}/> */}
         <Route path='/govtscheme' element={<GovtSchemesPage/>}/>
         <Route path='/nearbyissues' element={<NearbyIssuesMap/>}/>
         <Route path='/reportissue' element={<ReportIssue/>}/>
