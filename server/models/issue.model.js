@@ -21,13 +21,32 @@ const issueSchema = new mongoose.Schema(
         required: true,
       },
     },
-    image: {
-      type: String,
-      required: true,
-    },
+    image: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     description: {
       type: String,
       required: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["Reported", "InProgress", "Resolved"],
+      default: "Reported",
+    },
+    issueHash: {
+      type: String,
+      unique: true,
+    },
+    chianIssueId: {
+      type: Number,
     },
   },
   { timestamps: true },
