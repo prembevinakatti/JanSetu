@@ -1,3 +1,4 @@
+const contract = require("../../blockchain/contract");
 const issueModel = require("../models/issue.model");
 
 module.exports.createIssue = async (req, res) => {
@@ -41,6 +42,18 @@ module.exports.createIssue = async (req, res) => {
       .digest("hex");
 
     newIssue.issueHash = issueHash;
+    await newIssue.save();
+
+    const tx = await contract.createIssue(issueHash);
+    const receipt = await tx.wait();
+
+    const event = receipt.logs.find(
+      (log) => log.fragment?.name === "IssueCreated",
+    );
+
+    const blockchainIssueId = Number(event.args.issueId);
+
+    newIssue.chianIssueId = blockchainIssueId;
     await newIssue.save();
 
     return res.status(201).json({
