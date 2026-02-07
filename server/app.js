@@ -3,6 +3,7 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const authRoute = require("./routes/auth.route");
+const issueRoute = require("./routes/issue.route");
 const connectDB = require("./config/database");
 
 const app = express();
@@ -18,6 +19,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use("/api/v1/janSetu/auth", authRoute);
+app.use("/api/v1/janSetu/issues", issueRoute);
 
 const PORT = process.env.PORT || 5000;
 
