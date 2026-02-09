@@ -18,9 +18,8 @@ const artifactPath = path.join(
   "CivicChain.json",
 );
 
-console.log(process.env.PRIVATE_KEY);
-console.log(process.env.PRIVATE_KEY?.length);
-
+// console.log(process.env.PRIVATE_KEY);
+// console.log(process.env.PRIVATE_KEY?.length);
 
 const contractJSON = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
 const abi = contractJSON.abi;
