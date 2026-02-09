@@ -111,6 +111,16 @@ function getIssue(uint256 _issueId) external  view returns (Issue memory) {
     return issues[_issueId];
 }
 
+function getAllIssues() external view returns (Issue[] memory) {
+    Issue[] memory allIssues = new Issue[](issueCounter);
+
+    for( uint256 i = 1; i <= issueCounter; i++) {
+        allIssues[i-1] = issues[i];
+    }
+
+    return allIssues;
+}
+
 function getIssueHistory(uint256 _issueId)
         external
         view
