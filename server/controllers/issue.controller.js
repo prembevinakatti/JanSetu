@@ -1,5 +1,6 @@
 const contract = require("../../blockchain/contract");
 const issueModel = require("../models/issue.model");
+const userProfileModel = require("../models/userProfile.model");
 
 module.exports.createIssue = async (req, res) => {
   try {
@@ -27,6 +28,16 @@ module.exports.createIssue = async (req, res) => {
     if (!newIssue) {
       return res.status(500).json({ message: "Failed to create issue" });
     }
+
+    const userProfile = await userProfileModel.findOne({ userId });
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+
+    userProfile.issuesReported += 1;
+    userProfile.issues.push(newIssue._id);
+    await userProfile.save();
 
     const hashPayload = JSON.stringify({
       title: newIssue.title,
