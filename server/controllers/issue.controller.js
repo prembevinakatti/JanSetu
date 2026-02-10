@@ -53,7 +53,7 @@ module.exports.createIssue = async (req, res) => {
 
     const blockchainIssueId = Number(event.args.issueId);
 
-    newIssue.chianIssueId = blockchainIssueId;
+    newIssue.chainIssueId = blockchainIssueId;
     await newIssue.save();
 
     return res.status(201).json({
