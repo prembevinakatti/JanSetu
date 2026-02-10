@@ -45,7 +45,7 @@ const issueSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    chianIssueId: {
+    chainIssueId: {
       type: Number,
     },
   },
