@@ -1,6 +1,7 @@
 const contract = require("../../blockchain/contract");
 const issueModel = require("../models/issue.model");
 const userProfileModel = require("../models/userProfile.model");
+const { uploadToPinata } = require("../utils/pinataUpload");
 
 module.exports.createIssue = async (req, res) => {
   try {
@@ -10,9 +11,18 @@ module.exports.createIssue = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { title, category, location, description, images } = req.body;
+    const { title, category, location, description } = req.body;
 
-    if (!title || !category || !location || !description || !images) {
+    let imageUrls = [];
+
+    if (req.files?.length > 0) {
+      for (const file of req.files) {
+        const { url } = await uploadToPinata(file);
+        imageUrls.push(url);
+      }
+    }
+
+    if (!title || !category || !location || !description) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -21,7 +31,7 @@ module.exports.createIssue = async (req, res) => {
       category,
       location,
       description,
-      images,
+      images: imageUrls,
       createdBy: userId,
     });
 
