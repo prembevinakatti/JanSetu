@@ -1,82 +1,110 @@
-import React from "react";
+import apiClient from "@/api/apiClient";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CitizenLogin = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await apiClient.post("/auth/login", form, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      console.log(res);
+    } catch (err) {
+      console.log(err.message);
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 px-4">
-
-      {/* TWO-COLUMN COMPACT CARD */}
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full grid md:grid-cols-2 overflow-hidden">
-
-        {/* LEFT SIDE CONTENT */}
+        {/* LEFT SIDE */}
         <div className="bg-orange-400 text-white p-10 flex flex-col justify-center">
-          <h1 className="text-3xl font-bold leading-tight">
-            Welcome, <span className="text-orange-400">Citizen</span>
-          </h1>
-
-          <p className="mt-3 text-sm opacity-90 max-w-sm">
-            Login to report civic issues, track updates, and contribute to better governance through JanSetu.
-          </p>
-
-          <p className="mt-5 text-xs opacity-80 border-l-4 border-orange-400 pl-3">
-            Quick Reporting • Live Tracking • Transparent Status
+          <h1 className="text-3xl font-bold">Welcome, Citizen</h1>
+          <p className="mt-3 text-sm">
+            Login to report civic issues and track progress through JanSetu.
           </p>
         </div>
 
-        {/* RIGHT SIDE LOGIN FORM */}
+        {/* RIGHT SIDE FORM */}
         <div className="p-10 flex items-center justify-center">
           <div className="w-full max-w-sm">
+            <h2 className="text-2xl font-bold text-center text-blue-900">
+              Citizen Login
+            </h2>
 
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-center text-blue-900">Citizen Login</h2>
-            <p className="text-center text-gray-600 text-sm mt-1">
-              Access your JanSetu citizen account
-            </p>
+            {error && (
+              <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
+            )}
 
-            {/* Form */}
-            <form className="mt-8 space-y-5">
-
-              {/* Email */}
+            <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label className="text-gray-700 text-sm font-medium">Email</label>
+                <label>Email</label>
                 <input
                   type="email"
-                  placeholder="your@email.com"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 w-full px-4 py-2 border rounded-lg"
                 />
               </div>
 
-              {/* Password */}
               <div>
-                <label className="text-gray-700 text-sm font-medium">Password</label>
+                <label>Password</label>
                 <input
                   type="password"
-                  placeholder="Enter your password"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 w-full px-4 py-2 border rounded-lg"
                 />
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition"
+                disabled={loading}
+                className="w-full bg-orange-500 text-white py-2 rounded-lg"
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 
-            {/* Footer Text */}
-            <p className="text-center text-gray-600 text-sm mt-4">
+            <p className="text-center text-sm mt-4">
               Don't have an account?{" "}
-              <span className="text-blue-700 font-semibold cursor-pointer hover:underline">
+              <span
+                onClick={() => navigate("/register")}
+                className="text-blue-700 cursor-pointer"
+              >
                 Register
               </span>
             </p>
-
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -69,7 +69,7 @@ module.exports.login = async (req, res) => {
 
     const userToken = await jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      process.env.USER_JWT_SECRET,
       { expiresIn: "7d" },
     );
     res.cookie("userToken", userToken);

@@ -1,107 +1,123 @@
-import React from "react";
+import apiClient from "@/api/apiClient";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CitizenRegister = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await apiClient.post(`/auth/register`, form, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      console.log(res);
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 px-4">
-
-      {/* TWO-COLUMN COMPACT CARD */}
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full grid md:grid-cols-2 overflow-hidden">
-
-        {/* LEFT SIDE CONTENT */}
+        {/* LEFT */}
         <div className="bg-orange-400 text-white p-10 flex flex-col justify-center">
-          <h1 className="text-3xl font-bold leading-tight">
-            Join <span className="text-orange-400">JanSetu</span>
-          </h1>
-
-          <p className="mt-3 text-sm opacity-90 max-w-sm">
-            Register to report civic issues, track updates, and participate in 
-            community-driven transparent governance.
-          </p>
-
-          <p className="mt-5 text-xs opacity-80 border-l-4 border-orange-400 pl-3">
-            Instant Registration • Quick Reporting • Verified Citizen Access
+          <h1 className="text-3xl font-bold">Join JanSetu</h1>
+          <p className="mt-3 text-sm">
+            Register to report civic issues and track updates.
           </p>
         </div>
 
-        {/* RIGHT SIDE REGISTER FORM */}
+        {/* RIGHT FORM */}
         <div className="p-10 flex items-center justify-center">
           <div className="w-full max-w-sm">
+            <h2 className="text-2xl font-bold text-center text-blue-900">
+              Citizen Registration
+            </h2>
 
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-center text-blue-900">Citizen Registration</h2>
-            <p className="text-center text-gray-600 text-sm mt-1">
-              Create your JanSetu citizen account
-            </p>
+            {error && (
+              <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
+            )}
 
-            {/* Form */}
-            <form className="mt-8 space-y-5">
+            <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="username"
+                placeholder="Full Name"
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg"
+              />
 
-              {/* Full Name */}
-              <div>
-                <label className="text-gray-700 text-sm font-medium">Full Name</label>
-                <input
-                  type="text"
-                  placeholder="Your full name"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
-                />
-              </div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg"
+              />
 
-              {/* Email */}
-              <div>
-                <label className="text-gray-700 text-sm font-medium">Email</label>
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
-                />
-              </div>
+              <input
+                type="tel"
+                name="phoneNumber"
+                placeholder="Phone Number"
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg"
+              />
 
-              {/* Phone */}
-              <div>
-                <label className="text-gray-700 text-sm font-medium">Phone Number</label>
-                <input
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
-                />
-              </div>
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg"
+              />
 
-              {/* Password */}
-              <div>
-                <label className="text-gray-700 text-sm font-medium">Password</label>
-                <input
-                  type="password"
-                  placeholder="Create a password"
-                  className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 
-                  focus:border-blue-700 focus:ring-1 focus:ring-blue-300 outline-none transition"
-                />
-              </div>
-
-              
-
-              {/* Register Button */}
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition"
+                disabled={loading}
+                className="w-full bg-orange-500 text-white py-2 rounded-lg"
               >
-                Register
+                {loading ? "Registering..." : "Register"}
               </button>
             </form>
 
-            {/* Footer */}
-            <p className="text-center text-gray-600 text-sm mt-4">
+            <p className="text-center text-sm mt-4">
               Already have an account?{" "}
-              <span className="text-blue-700 font-semibold cursor-pointer hover:underline">
+              <span
+                onClick={() => navigate("/login")}
+                className="text-blue-700 cursor-pointer"
+              >
                 Login
               </span>
             </p>
-
           </div>
         </div>
-
       </div>
     </div>
   );
