@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { jsPDF } from "jspdf";
+import useGetMyIssues from "@/hooks/useGetMyIssues";
 
 const MyIssue = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [editIssue, setEditIssue] = useState(null);
+
+  useGetMyIssues();
 
   // SAMPLE ISSUE DATA (replace with API later)
   const issues = [
@@ -15,11 +18,9 @@ const MyIssue = () => {
       category: "Road",
       date: "12 Feb 2025",
       status: "In Progress",
-      description: "Large pothole near the main junction causing traffic blocks.",
-      attachments: [
-        "/images/pothole1.jpg",
-        "/images/pothole2.jpg",
-      ],
+      description:
+        "Large pothole near the main junction causing traffic blocks.",
+      attachments: ["/images/pothole1.jpg", "/images/pothole2.jpg"],
       timeline: [
         { date: "12 Feb 2025", text: "Issue Reported" },
         { date: "13 Feb 2025", text: "Assigned to Road Department" },
@@ -98,8 +99,8 @@ const MyIssue = () => {
                     issue.status === "Resolved"
                       ? "bg-green-100 text-green-700"
                       : issue.status === "In Progress"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-orange-100 text-orange-700"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-orange-100 text-orange-700"
                   }
                 `}
                 >
@@ -131,7 +132,6 @@ const MyIssue = () => {
       {selectedIssue && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
           <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-xl">
-
             {/* HEADER */}
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-blue-900">
@@ -148,7 +148,9 @@ const MyIssue = () => {
 
             {/* STATUS METER */}
             <div className="mt-4">
-              <p className="font-semibold text-gray-700 mb-2">Status Progress</p>
+              <p className="font-semibold text-gray-700 mb-2">
+                Status Progress
+              </p>
               <div className="w-full bg-gray-200 h-3 rounded-full">
                 <div
                   className="h-3 bg-blue-700 rounded-full"
@@ -157,8 +159,8 @@ const MyIssue = () => {
                       selectedIssue.status === "Resolved"
                         ? "100%"
                         : selectedIssue.status === "In Progress"
-                        ? "60%"
-                        : "20%",
+                          ? "60%"
+                          : "20%",
                   }}
                 ></div>
               </div>
@@ -206,7 +208,6 @@ const MyIssue = () => {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
@@ -238,7 +239,6 @@ const EditIssueModal = ({ issue, setEditIssue }) => {
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white w-full max-w-lg p-6 rounded-xl shadow-xl">
-
         <h2 className="text-2xl font-bold text-blue-900 mb-4">Edit Issue</h2>
 
         {/* Title */}
@@ -266,7 +266,7 @@ const EditIssueModal = ({ issue, setEditIssue }) => {
           onChange={(e) => {
             const arr = [...attachments];
             Array.from(e.target.files).forEach((file) =>
-              arr.push(URL.createObjectURL(file))
+              arr.push(URL.createObjectURL(file)),
             );
             setAttachments(arr);
           }}
@@ -274,7 +274,11 @@ const EditIssueModal = ({ issue, setEditIssue }) => {
 
         <div className="flex gap-2 mt-3 flex-wrap">
           {attachments.map((img, i) => (
-            <img key={i} src={img} className="w-20 h-20 rounded-lg border object-cover" />
+            <img
+              key={i}
+              src={img}
+              className="w-20 h-20 rounded-lg border object-cover"
+            />
           ))}
         </div>
 

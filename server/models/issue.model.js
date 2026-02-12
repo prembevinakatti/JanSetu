@@ -10,6 +10,11 @@ const issueSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
+
     location: {
       type: {
         type: String,
@@ -33,7 +38,7 @@ const issueSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "Auth",
       required: true,
     },
     status: {

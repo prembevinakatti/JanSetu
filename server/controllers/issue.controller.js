@@ -1,37 +1,60 @@
-const contract = require("../../blockchain/contract");
+const loadContract = async () => {
+  const module = await import("../../blockchain/contract.js");
+  return module.default;
+};
+const { default: contract } = require("../../blockchain/contract.js");
 const issueModel = require("../models/issue.model");
 const userProfileModel = require("../models/userProfile.model");
 const { uploadToPinata } = require("../utils/pinataUpload");
+const crypto = require("crypto");
 
 module.exports.createIssue = async (req, res) => {
   try {
     const userId = req.userId;
+    const contract = await loadContract();
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { title, category, location, description } = req.body;
+    const { title, category, description, latitude, longitude, address } =
+      req.body;
 
     let imageUrls = [];
 
     if (req.files?.length > 0) {
       for (const file of req.files) {
+        console.log("Uploading:", file.originalname);
+
         const { url } = await uploadToPinata(file);
+
+        console.log("Uploaded to:", url);
+
         imageUrls.push(url);
       }
     }
 
-    if (!title || !category || !location || !description) {
+    if (
+      !title ||
+      !category ||
+      !latitude ||
+      !longitude ||
+      !description ||
+      !address
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const newIssue = await issueModel.create({
       title,
       category,
-      location,
+      address,
+      location: {
+        type: "Point",
+        coordinates: [Number(longitude), Number(latitude)],
+      },
       description,
-      images: imageUrls,
+      image: imageUrls,
       createdBy: userId,
     });
 
@@ -39,15 +62,19 @@ module.exports.createIssue = async (req, res) => {
       return res.status(500).json({ message: "Failed to create issue" });
     }
 
-    const userProfile = await userProfileModel.findOne({ userId });
+    let userProfile = await userProfileModel.findOne({ userId });
 
     if (!userProfile) {
-      return res.status(404).json({ message: "User profile not found" });
+      userProfile = await userProfileModel.create({
+        userId,
+        issuesReported: 1,
+        issues: [newIssue._id],
+      });
+    } else {
+      userProfile.issuesReported += 1;
+      userProfile.issues.push(newIssue._id);
+      await userProfile.save();
     }
-
-    userProfile.issuesReported += 1;
-    userProfile.issues.push(newIssue._id);
-    await userProfile.save();
 
     const hashPayload = JSON.stringify({
       title: newIssue.title,
@@ -91,20 +118,46 @@ module.exports.createIssue = async (req, res) => {
 module.exports.getAllIssues = async (req, res) => {
   try {
     const userId = req.userId;
+
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const issues = await issueModel.find().populate("createdBy");
+    const issues = await issueModel
+      .find()
+      .populate("createdBy")
+      .sort({ createdAt: -1 });
 
-    if (!issues) {
-      return res.status(404).json({ message: "No issues found" });
+    const verifiedIssues = [];
+
+    for (const issue of issues) {
+      let verificationStatus = "NotOnChain";
+
+      if (issue.chainIssueId) {
+        try {
+          const chainData = await contract.getIssue(issue.chainIssueId);
+
+          const chainHash = chainData.issueHash;
+
+          if (chainHash === issue.issueHash) {
+            verificationStatus = "Verified";
+          } else {
+            verificationStatus = "Altered";
+          }
+        } catch (err) {
+          verificationStatus = "ChainError";
+        }
+      }
+
+      verifiedIssues.push({
+        ...issue.toObject(),
+        verificationStatus,
+      });
     }
 
     return res.status(200).json({
-      message: "Issues fetched successfully",
       success: true,
-      issues,
+      issues: verifiedIssues,
     });
   } catch (error) {
     console.error("Error fetching issues:", error);
@@ -120,9 +173,9 @@ module.exports.getUserIssues = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const userIssues = await (
-      await issueModel.find({ createdBy: userId })
-    ).toSorted({ createdAt: -1 });
+    const userIssues = await issueModel
+      .find({ createdBy: userId })
+      .sort({ createdAt: -1 });
 
     if (!userIssues) {
       return res.status(404).json({ message: "No issues found for this user" });
