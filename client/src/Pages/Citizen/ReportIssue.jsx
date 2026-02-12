@@ -1,38 +1,34 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import React, { useState } from "react";
-import { Loader2, Camera, MapPin } from "lucide-react";
+import { Loader2, Camera, MapPin, X } from "lucide-react";
+import apiClient from "@/api/apiClient";
 
 const ReportIssue = () => {
-  const [description, setDescription] = useState("");
-  const [aiPrediction, setAiPrediction] = useState(
-    "AI will predict once you start typing..."
-  );
+  const [form, setForm] = useState({
+    title: "",
+    category: "",
+    description: "",
+    location: "",
+  });
+  const [coords, setCoords] = useState({
+    latitude: null,
+    longitude: null,
+  });
+
   const [images, setImages] = useState([]);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [location, setLocation] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  /* 🎤 Voice Input */
-  const startVoiceInput = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition)
-      return alert("Voice recognition not supported!");
-
-    const recog = new SpeechRecognition();
-    recog.lang = "en-IN";
-    recog.start();
-
-    recog.onresult = (e) => {
-      setDescription(e.results[0][0].transcript);
-      setAiPrediction("AI Prediction → Likely 'Road / Transportation'");
-    };
+  /* Handle input */
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* 📍 GPS LOCATION */
+  /* Get GPS location */
   const getLocation = () => {
-    if (!navigator.geolocation)
-      return alert("GPS not supported in your browser!");
+    if (!navigator.geolocation) return alert("GPS not supported");
 
     setLocationLoading(true);
 
@@ -40,83 +36,146 @@ const ReportIssue = () => {
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
+
+          setCoords({ latitude, longitude }); // ✅ SAVE COORDS
+
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
           );
+
           const data = await res.json();
-          setLocation(data?.display_name || "Location not found");
+
+          setForm((prev) => ({
+            ...prev,
+            location: data.display_name || "",
+          }));
         } catch {
-          alert("Failed to fetch area name");
+          alert("Unable to fetch location");
         } finally {
           setLocationLoading(false);
         }
       },
-      () => {
-        alert("Unable to fetch location");
-        setLocationLoading(false);
-      }
+      () => setLocationLoading(false),
     );
   };
 
-  /* 📷 IMAGE UPLOAD / CAMERA */
+  /* Handle images */
   const handleImages = (e) => {
-    setImages([...images, ...Array.from(e.target.files)]);
+    const files = Array.from(e.target.files);
+    setImages((prev) => [...prev, ...files]);
+  };
+
+  const removeImage = (index) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
+  /* Submit Issue */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.title || !form.category || !form.description || !form.location) {
+      return setMessage("Please fill all fields.");
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const data = new FormData();
+
+      // append text fields
+      data.append("title", form.title);
+      data.append("category", form.category);
+      data.append("description", form.description);
+      data.append("location", form.location);
+      data.append("latitude", coords.latitude);
+      data.append("address", form.location);
+      data.append("longitude", coords.longitude);
+
+      // append images
+      images.forEach((img) => {
+        data.append("images", img);
+      });
+
+      // DEBUG (optional)
+      for (let pair of data.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      // ❗ DO NOT pass headers here
+      const res = await apiClient.post("/issues/createIssue", data);
+
+      console.log(res.data);
+
+      setMessage("✅ Issue submitted successfully!");
+      setForm({ title: "", category: "", description: "", location: "" });
+      setImages([]);
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.message || "Submission failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      {/* HERO */}
-      <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white py-6 px-6 mt-16">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl font-bold">Report an Issue</h1>
-          <p className="mt-1 text-sm opacity-90">
-            Help improve your local community
-          </p>
-        </div>
+      {/* HEADER */}
+      <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white py-8 mt-16 text-center">
+        <h1 className="text-3xl font-bold">Report a Civic Issue</h1>
+        <p className="text-sm mt-2 opacity-90">
+          Help your city improve by reporting problems instantly.
+        </p>
       </section>
 
       {/* FORM */}
-      <section className="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-8 mt-10 mb-10">
-        <form className="space-y-6">
-
-          {/* TITLE */}
+      <section className="max-w-2xl mx-auto bg-white shadow-lg rounded-xl p-8 mt-10 mb-12">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title */}
           <div>
             <label className="text-sm font-medium text-gray-700">
               Issue Title
             </label>
             <input
-              type="text"
-              placeholder="Ex: Pothole near main road"
-              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Ex: Pothole near bus stand"
+              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
 
-          {/* CATEGORY */}
+          {/* Category */}
           <div>
             <label className="text-sm font-medium text-gray-700">
               Category
             </label>
-            <select className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400">
-              <option>Select Category</option>
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            >
+              <option value="">Select Category</option>
               <option>Road & Transportation</option>
               <option>Garbage & Cleanliness</option>
-              <option>Streetlight / Electricity</option>
+              <option>Electricity</option>
               <option>Water Supply</option>
               <option>Drainage</option>
-              <option>Safety / Noise</option>
+              <option>Safety</option>
             </select>
           </div>
 
-          {/* LOCATION */}
+          {/* Location */}
           <div>
-            <label className="text-sm font-medium text-gray-700 flex justify-between">
+            <label className="flex justify-between text-sm font-medium text-gray-700">
               Location
               <button
                 type="button"
                 onClick={getLocation}
-                className="flex items-center gap-1 text-xs text-blue-600"
+                className="text-blue-600 flex items-center gap-1 text-xs"
               >
                 {locationLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -128,89 +187,81 @@ const ReportIssue = () => {
             </label>
 
             <input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Enter area or use GPS"
-              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Enter location"
+              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
 
-          {/* IMAGE UPLOAD */}
+          {/* Upload */}
           <div>
             <label className="text-sm font-medium text-gray-700">
               Upload Photos
             </label>
 
-            <div className="mt-2 flex items-center gap-3">
-              <label className="flex items-center gap-2 px-4 py-2 text-sm border rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <Camera className="h-4 w-4" />
-                Camera / Gallery
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImages}
-                  hidden
-                />
-              </label>
-            </div>
+            <label className="mt-2 flex items-center gap-2 px-4 py-2 text-sm border rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 w-fit">
+              <Camera className="h-4 w-4" />
+              Add Images
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImages}
+                hidden
+              />
+            </label>
           </div>
 
-          {/* IMAGE PREVIEW */}
+          {/* Preview */}
           {images.length > 0 && (
-            <div className="flex gap-3 flex-wrap">
-              {images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={URL.createObjectURL(img)}
-                  alt="preview"
-                  className="h-20 w-20 object-cover rounded-lg border"
-                />
+            <div className="flex flex-wrap gap-3">
+              {images.map((img, i) => (
+                <div key={i} className="relative">
+                  <img
+                    src={URL.createObjectURL(img)}
+                    alt=""
+                    className="h-20 w-20 object-cover rounded-lg border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
               ))}
             </div>
           )}
 
-          {/* DESCRIPTION */}
+          {/* Description */}
           <div>
-            <label className="text-sm font-medium text-gray-700 flex justify-between">
+            <label className="text-sm font-medium text-gray-700">
               Description
-              <button
-                type="button"
-                onClick={startVoiceInput}
-                className="text-xs text-orange-500 underline"
-              >
-                🎤 Voice Input
-              </button>
             </label>
-
             <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
               rows="4"
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                setAiPrediction("AI Prediction → Analyzing...");
-                setTimeout(() => {
-                  setAiPrediction(
-                    "AI Prediction → Looks like a 'Cleanliness' issue"
-                  );
-                }, 600);
-              }}
-              placeholder="Describe the issue clearly..."
-              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+              placeholder="Explain the issue clearly..."
+              className="w-full mt-1 px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             />
-
-            <p className="mt-2 text-xs bg-blue-50 border border-blue-200 text-blue-700 p-2 rounded-lg">
-              {aiPrediction}
-            </p>
           </div>
 
-          {/* SUBMIT */}
+          {/* Message */}
+          {message && (
+            <p className="text-sm text-center text-blue-700">{message}</p>
+          )}
+
+          {/* Submit */}
           <button
-            type="submit"
-            className="w-full bg-orange-500 text-white py-3 rounded-lg text-sm font-semibold hover:bg-orange-600 transition"
+            disabled={loading}
+            className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 flex justify-center"
           >
-            Submit Issue
+            {loading ? <Loader2 className="animate-spin" /> : "Submit Issue"}
           </button>
         </form>
       </section>
