@@ -1,14 +1,11 @@
-import AppRoutes from "./Routes/AppRoutes"
-
+import AppRoutes from "./Routes/AppRoutes";
 
 function App() {
- 
-
   return (
     <>
-      <AppRoutes/>
+      <AppRoutes />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
