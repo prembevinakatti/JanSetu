@@ -191,3 +191,44 @@ module.exports.getUserIssues = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+module.exports.updateStatus = async (req, res) => {
+  try {
+    const adminId = req.adminId;
+    const { issueId } = req.params;
+    const { status } = req.body;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    if (!issueId) {
+      return res.status(400).json({ message: "Issue ID is required" });
+    }
+
+    const issue = await issueModel.findById(issueId);
+
+    if (!issue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    issue.status = status;
+    await issue.save();
+
+    const tx = await contract.updateIssueStatus(issue.chainIssueId, status);
+    await tx.wait();
+
+    return res.status(200).json({
+      message: "Issue status updated successfully",
+      success: true,
+      issue,
+    });
+  } catch (error) {
+    console.log("Error updating issue status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

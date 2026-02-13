@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import React, { useState } from "react";
 import { Loader2, Camera, MapPin, X } from "lucide-react";
 import apiClient from "@/api/apiClient";
+import toast from "react-hot-toast";
 
 const ReportIssue = () => {
   const [form, setForm] = useState({
@@ -102,12 +103,11 @@ const ReportIssue = () => {
         console.log(pair[0], pair[1]);
       }
 
-      // ❗ DO NOT pass headers here
       const res = await apiClient.post("/issues/createIssue", data);
 
       console.log(res.data);
 
-      setMessage("✅ Issue submitted successfully!");
+      toast.success(res.data.message);
       setForm({ title: "", category: "", description: "", location: "" });
       setImages([]);
     } catch (err) {

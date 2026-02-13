@@ -1,8 +1,10 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -19,7 +21,6 @@ const AdminDashboard = () => {
 
       {/* STAT CARDS */}
       <section className="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-4 gap-6">
-
         <div className="bg-white p-6 rounded-xl shadow border-t-4 border-blue-700">
           <h3 className="text-3xl font-bold text-blue-900">128</h3>
           <p className="text-gray-600 text-sm mt-1">Total Issues</p>
@@ -39,24 +40,24 @@ const AdminDashboard = () => {
           <h3 className="text-3xl font-bold text-blue-700">48</h3>
           <p className="text-gray-600 text-sm mt-1">Resolved</p>
         </div>
-
       </section>
 
       {/* QUICK ACTIONS */}
       <section className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
-
         <div className="bg-white p-8 rounded-xl shadow border-l-4 border-blue-700 hover:shadow-xl transition">
           <h2 className="text-xl font-bold text-blue-900">View All Issues</h2>
           <p className="text-gray-600 text-sm mt-2">
             Check and manage all civic complaints.
           </p>
-          <button className="mt-5 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition">
+          <button onClick={() => navigate("/issuemanagement")} className="mt-5 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition">
             Open Issues Panel
           </button>
         </div>
 
         <div className="bg-white p-8 rounded-xl shadow border-l-4 border-orange-500 hover:shadow-xl transition">
-          <h2 className="text-xl font-bold text-blue-900">Department Overview</h2>
+          <h2 className="text-xl font-bold text-blue-900">
+            Department Overview
+          </h2>
           <p className="text-gray-600 text-sm mt-2">
             Monitor workload & performance across departments.
           </p>
@@ -74,15 +75,15 @@ const AdminDashboard = () => {
             Download Report
           </button>
         </div>
-
       </section>
 
       {/* DEPARTMENT PERFORMANCE */}
       <section className="max-w-6xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-bold text-blue-900 mb-4">Department Performance</h2>
+        <h2 className="text-2xl font-bold text-blue-900 mb-4">
+          Department Performance
+        </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-
           <div className="bg-white p-6 rounded-xl shadow border-l-4 border-blue-700">
             <h3 className="text-lg font-bold text-blue-900">Road Department</h3>
             <p className="text-gray-600 mt-1 text-sm">Resolution Rate: 78%</p>
@@ -90,17 +91,20 @@ const AdminDashboard = () => {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow border-l-4 border-orange-500">
-            <h3 className="text-lg font-bold text-blue-900">Cleanliness Dept.</h3>
+            <h3 className="text-lg font-bold text-blue-900">
+              Cleanliness Dept.
+            </h3>
             <p className="text-gray-600 mt-1 text-sm">Resolution Rate: 62%</p>
             <p className="text-orange-500 text-sm mt-1">Status: Average</p>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow border-l-4 border-red-500">
-            <h3 className="text-lg font-bold text-blue-900">Electricity Dept.</h3>
+            <h3 className="text-lg font-bold text-blue-900">
+              Electricity Dept.
+            </h3>
             <p className="text-gray-600 mt-1 text-sm">Resolution Rate: 41%</p>
             <p className="text-red-500 text-sm mt-1">Status: Poor</p>
           </div>
-
         </div>
       </section>
 
@@ -121,7 +125,6 @@ const AdminDashboard = () => {
             </thead>
 
             <tbody>
-
               <tr className="border-t">
                 <td className="p-4">Water leakage near park</td>
                 <td className="p-4">Water Supply</td>
@@ -145,7 +148,6 @@ const AdminDashboard = () => {
                 <td className="p-4 text-blue-700 font-semibold">Resolved</td>
                 <td className="p-4">01 Jan 2025</td>
               </tr>
-
             </tbody>
           </table>
         </div>

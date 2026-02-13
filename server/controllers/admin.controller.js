@@ -1,12 +1,13 @@
 const adminModel = require("../models/admin.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { default: contract } = require("../../blockchain/contract");
 
 module.exports.adminregister = async (req, res) => {
   try {
     const { fullName, email, phone, password } = req.body;
     if (!fullName || !email || !phone || !password) {
-      return res.status();
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const admin = await adminModel.findOne({ email });
@@ -39,7 +40,7 @@ module.exports.adminregister = async (req, res) => {
       admin: newAdmin,
     });
   } catch (error) {
-    console.log("Failed to registrer");
+    console.log(error);
     return res.status(500).json({ message: "Error in registering" });
   }
 };
@@ -79,5 +80,38 @@ module.exports.adminlogin = async (req, res) => {
   } catch (error) {
     console.error("Failed to login");
     return res.status(500).json({ message: "Error in login" });
+  }
+};
+
+module.exports.addMetamask = async (req, res) => {
+  try {
+    const { walletAddress } = req.body;
+    const adminId = req.adminId;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!walletAddress) {
+      return res.status(400).json({ message: "Wallet address is required" });
+    }
+
+    const admin = await adminModel.findByIdAndUpdate(
+      adminId,
+      { metamaskWallet: walletAddress },
+      { new: true },
+    );
+
+    const tx = await contract.addAdmin(walletAddress);
+    await tx.wait();
+
+    return res.status(200).json({
+      message: "Admin wallet added successfully",
+      success: true,
+      admin,
+    });
+  } catch (error) {
+    console.error("Failed to add admin wallet");
+    return res.status(500).json({ message: "Error in adding admin wallet" });
   }
 };

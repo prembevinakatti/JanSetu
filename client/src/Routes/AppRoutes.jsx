@@ -17,6 +17,7 @@ import MyIssue from "@/Pages/Citizen/MyIssue";
 import NearbyIssuesMap from "@/Pages/Citizen/NearbyIssuesMap";
 import ReportIssue from "@/Pages/Citizen/ReportIssue";
 import TrackIssue from "@/Pages/Citizen/TrackIssue";
+import AdminWalletConnect from "@/utils/AdminMetamaskConnect";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
@@ -36,6 +37,7 @@ const AppRoutes = () => {
         <Route path="/trackissue" element={<TrackIssue />} />
         <Route path="/myissue" element={<MyIssue />} />
         <Route path="/allissue" element={<AllIssues />} />
+        <Route path="/metamask" element={<AdminWalletConnect />} />
 
         {/* Admin Routes */}
         <Route path="/adminhome" element={<AdminHomePage />} />

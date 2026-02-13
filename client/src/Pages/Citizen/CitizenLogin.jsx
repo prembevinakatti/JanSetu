@@ -1,5 +1,6 @@
 import apiClient from "@/api/apiClient";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const CitizenLogin = () => {
@@ -29,6 +30,8 @@ const CitizenLogin = () => {
         },
         withCredentials: true,
       });
+      navigate("/citizendashboard");
+      toast.success("Login successful!");
       console.log(res);
     } catch (err) {
       console.log(err.message);
