@@ -6,8 +6,10 @@ const { default: contract } = require("../../blockchain/contract.js");
 const issueModel = require("../models/issue.model");
 const issueHistoryModel = require("../models/issueHistory.model.js");
 const userProfileModel = require("../models/userProfile.model");
+const { analyzeComplaint } = require("../services/ai.service.js");
 const { uploadToPinata } = require("../utils/pinataUpload");
 const crypto = require("crypto");
+const { calculatePriority } = require("../utils/priorityCalculator.js");
 
 module.exports.createIssue = async (req, res) => {
   try {
@@ -46,6 +48,10 @@ module.exports.createIssue = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    const aiData = await analyzeComplaint(description);
+
+    const { score, level } = calculatePriority(aiData);
+
     const newIssue = await issueModel.create({
       title,
       category,
@@ -57,6 +63,12 @@ module.exports.createIssue = async (req, res) => {
       description,
       image: imageUrls,
       createdBy: userId,
+
+      aiCategory: aiData?.category,
+      sentiment: aiData?.sentiment,
+      priorityScore: score,
+      priorityLevel: level,
+      isEmergency: aiData?.is_emergency,
     });
 
     if (!newIssue) {
