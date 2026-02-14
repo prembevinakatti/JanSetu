@@ -4,6 +4,7 @@ const loadContract = async () => {
 };
 const { default: contract } = require("../../blockchain/contract.js");
 const issueModel = require("../models/issue.model");
+const issueHistoryModel = require("../models/issueHistory.model.js");
 const userProfileModel = require("../models/userProfile.model");
 const { uploadToPinata } = require("../utils/pinataUpload");
 const crypto = require("crypto");
@@ -61,6 +62,18 @@ module.exports.createIssue = async (req, res) => {
     if (!newIssue) {
       return res.status(500).json({ message: "Failed to create issue" });
     }
+
+    await issueHistoryModel.create({
+      issueId: newIssue._id,
+      status: "Reported",
+      updatedBy: userId,
+      remarks: "Issue reported by user",
+      address,
+      location: {
+        type: "Point",
+        coordinates: [Number(longitude), Number(latitude)],
+      },
+    });
 
     let userProfile = await userProfileModel.findOne({ userId });
 

@@ -1,11 +1,54 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import useGetAllIssues from "@/hooks/useGetAllIssues";
+import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import apiClient from "@/api/apiClient";
 
 const AllIssues = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
+const [selectedStage, setSelectedStage] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
   const { issues, loading } = useGetAllIssues();
+
+  useEffect(() => {
+  const fetchHistory = async () => {
+    if (!selectedIssue) return;
+
+    try {
+      setHistoryLoading(true);
+
+      const res = await apiClient.get(
+        `/history/getIssueHistory/${selectedIssue._id}`
+      );
+
+      if (res.data.success) {
+        const sorted = res.data.history.sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+
+        setHistory(sorted);
+      }
+    } catch (err) {
+      console.log("Error fetching history:", err);
+      setHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  fetchHistory();
+}, [selectedIssue]);
+
+
+
+  useEffect(() => {
+    if (selectedIssue) {
+      setSelectedStage(selectedIssue.status || "Reported");
+    }
+  }, [selectedIssue]);
 
   if (loading) {
     return (
@@ -161,6 +204,121 @@ const AllIssues = () => {
               <h3 className="text-lg font-semibold text-blue-900">Location</h3>
 
               <p className="text-gray-700 mt-1">{selectedIssue.address}</p>
+            </div>
+
+            {/* ================= REAL TRANSPARENCY TIMELINE ================= */}
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold text-blue-900 mb-6">
+                Issue Activity Timeline
+              </h3>
+
+              {historyLoading ? (
+                <p className="text-sm text-gray-500">Loading history...</p>
+              ) : history.length === 0 ? (
+                <p className="text-sm text-gray-500">No updates yet.</p>
+              ) : (
+                <div className="relative pl-12">
+                  {/* Vertical line */}
+                  <div className="absolute left-5 top-2 bottom-2 w-1 bg-gray-200 rounded-full"></div>
+
+                  {history.map((item, index) => {
+                    const statusColor =
+                      item.status === "Resolved"
+                        ? "green"
+                        : item.status === "InProgress"
+                          ? "blue"
+                          : "orange";
+
+                    const bgColor =
+                      statusColor === "green"
+                        ? "bg-green-500"
+                        : statusColor === "blue"
+                          ? "bg-blue-600"
+                          : "bg-orange-500";
+
+                    const ringColor =
+                      statusColor === "green"
+                        ? "ring-green-200"
+                        : statusColor === "blue"
+                          ? "ring-blue-200"
+                          : "ring-orange-200";
+
+                    const textColor =
+                      statusColor === "green"
+                        ? "text-green-600"
+                        : statusColor === "blue"
+                          ? "text-blue-600"
+                          : "text-orange-600";
+
+                    return (
+                      <div
+                        key={item._id}
+                        className="relative mb-10 cursor-pointer group"
+                        onClick={() => setSelectedStage(item._id)}
+                      >
+                        {/* Dot */}
+                        <div className="absolute -left-7 top-0">
+                          <div
+                            className={`p-2 rounded-full shadow-md text-white ${bgColor}
+                  ${
+                    selectedStage === item._id
+                      ? `ring-4 ${ringColor} scale-110`
+                      : ""
+                  }`}
+                          >
+                            {item.status === "Resolved" ? (
+                              <CheckCircle size={18} />
+                            ) : item.status === "InProgress" ? (
+                              <Clock size={18} />
+                            ) : (
+                              <AlertCircle size={18} />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Card */}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border group-hover:shadow-md transition">
+                          <div className="flex justify-between items-center">
+                            <h4 className={`font-semibold ${textColor}`}>
+                              {item.status}
+                            </h4>
+                            <span className="text-xs text-gray-500">
+                              {new Date(item.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+
+                          <p className="text-sm text-gray-700 mt-2">
+                            Updated by:{" "}
+                            <strong>
+                              {item.updatedBy?.username || "Admin"}
+                            </strong>
+                          </p>
+
+                          {item.remarks && (
+                            <p className="text-sm text-gray-600 mt-2">
+                              📝 {item.remarks}
+                            </p>
+                          )}
+
+                          {item.address && (
+                            <p className="text-sm text-gray-500 mt-2">
+                              📍 {item.address}
+                            </p>
+                          )}
+
+                          {item.proofImage && (
+                            <img
+                              src={item.proofImage}
+                              alt="proof"
+                              className="mt-3 w-32 h-32 object-cover rounded-lg border"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Reporter Details */}
