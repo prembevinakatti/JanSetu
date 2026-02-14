@@ -20,12 +20,14 @@ const IssueManagement = () => {
   const [updating, setUpdating] = useState(false);
   const [updateLocation, setUpdateLocation] = useState("");
   const [locationLoading, setLocationLoading] = useState(false);
+  const [updateCoords, setUpdateCoords] = useState(null);
 
   /* ---------------- FETCH ISSUES ---------------- */
   const fetchIssues = async () => {
     try {
       const res = await apiClient.get("/issues/getAllIssues");
       setIssues(res.data.issues);
+      console.log(res.data.issues);
     } catch (err) {
       console.log(err);
     } finally {
@@ -42,19 +44,38 @@ const IssueManagement = () => {
     try {
       setUpdating(true);
 
-      const data = new FormData();
-      data.append("status", newStatus);
-      data.append("remarks", remarks);
+      const formData = new FormData();
+      formData.append("status", newStatus);
+      formData.append("remarks", remarks);
 
-      if (proofImage) {
-        data.append("proof", proofImage);
+      if (updateLocation) {
+        formData.append("address", updateLocation);
       }
 
-      await apiClient.put(`/issues/updateIssue/${updateModal._id}`, data);
+      if (updateCoords) {
+        formData.append("latitude", updateCoords.latitude);
+        formData.append("longitude", updateCoords.longitude);
+      }
 
+      if (proofImage) {
+        formData.append("proof", proofImage);
+      }
+
+      console.log(formData);
+
+      await apiClient.put(
+        `/history/updateHistory/${updateModal._id}`,
+        formData,
+      );
+
+      // Reset everything properly
       setUpdateModal(null);
       setProofImage(null);
       setRemarks("");
+      setUpdateLocation("");
+      setUpdateCoords(null);
+      setNewStatus("");
+
       fetchIssues();
     } catch (err) {
       console.log(err);
@@ -102,6 +123,7 @@ const IssueManagement = () => {
           const data = await res.json();
 
           setUpdateLocation(data.display_name || "Location not found");
+          setUpdateCoords({ latitude, longitude });
         } catch {
           alert("Failed to fetch location");
         } finally {

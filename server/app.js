@@ -5,6 +5,7 @@ const cors = require("cors");
 const authRoute = require("./routes/auth.route");
 const issueRoute = require("./routes/issue.route");
 const adminRoute = require("./routes/admin.route");
+const issueHistoryRoute = require("./routes/issueHistory.route");
 const connectDB = require("./config/database");
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(cors(corsOptions));
 app.use("/api/v1/janSetu/auth", authRoute);
 app.use("/api/v1/janSetu/issues", issueRoute);
 app.use("/api/v1/janSetu/admin", adminRoute);
+app.use("/api/v1/janSetu/history", issueHistoryRoute);
 
 const PORT = process.env.PORT || 5000;
 
