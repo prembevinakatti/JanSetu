@@ -53,8 +53,33 @@ const issueSchema = new mongoose.Schema(
     chainIssueId: {
       type: Number,
     },
+    aiCategory: {
+      type: String,
+    },
+
+    sentiment: {
+      type: Object,
+    },
+
+    priorityScore: {
+      type: Number,
+      default: 0,
+    },
+
+    priorityLevel: {
+      type: String,
+      enum: ["Low", "Medium", "High"],
+      default: "Low",
+    },
+
+    isEmergency: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
+
+issueSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Issues", issueSchema);
