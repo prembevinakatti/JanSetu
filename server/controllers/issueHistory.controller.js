@@ -92,3 +92,32 @@ module.exports.updateIssue = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+module.exports.getIssueHistory = async (req, res) => {
+  try {
+    const { issueId } = req.params;
+
+    if (!issueId) {
+      return res.status(400).json({ message: "Issue ID is required" });
+    }
+
+    const issueHistory = await issueHistoryModel
+      .find({ issueId })
+      .populate("updatedBy");
+
+    if (!issueHistory) {
+      return res
+        .status(404)
+        .json({ message: "No history found for this issue" });
+    }
+
+    return res.status(200).json({
+      message: "Issue history fetched successfully",
+      success: true,
+      history: issueHistory,
+    });
+  } catch (error) {
+    console.log("Error fetching issue history:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
