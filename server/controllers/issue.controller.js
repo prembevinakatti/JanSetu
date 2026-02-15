@@ -23,20 +23,6 @@ module.exports.createIssue = async (req, res) => {
     const { title, category, description, latitude, longitude, address } =
       req.body;
 
-    let imageUrls = [];
-
-    if (req.files?.length > 0) {
-      for (const file of req.files) {
-        console.log("Uploading:", file.originalname);
-
-        const { url } = await uploadToPinata(file);
-
-        console.log("Uploaded to:", url);
-
-        imageUrls.push(url);
-      }
-    }
-
     if (
       !title ||
       !category ||
@@ -48,10 +34,46 @@ module.exports.createIssue = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const aiData = await analyzeComplaint(description);
+    // ================= IMAGE UPLOAD =================
+    let imageUrls = [];
 
-    const { score, level } = calculatePriority(aiData);
+    if (req.files?.length > 0) {
+      for (const file of req.files) {
+        const { url } = await uploadToPinata(file);
+        imageUrls.push(url);
+      }
+    }
 
+    // ================= AI ANALYSIS =================
+    const aiData = await analyzeComplaint(description, latitude, longitude);
+    console.log(aiData);
+    
+
+    /*
+    Expected AI Response:
+    {
+      sentiment,
+      embedding,
+      similarComplaint,
+      priorityScore,
+      priorityLevel,
+      isEmergency,
+      clusterId
+    }
+    */
+
+    // Extract properly
+    const {
+      sentiment,
+      embedding,
+      priorityScore,
+      priorityLevel,
+      isEmergency,
+      clusterId,
+      aiCategory,
+    } = aiData;
+
+    // ================= CREATE ISSUE =================
     const newIssue = await issueModel.create({
       title,
       category,
@@ -64,17 +86,16 @@ module.exports.createIssue = async (req, res) => {
       image: imageUrls,
       createdBy: userId,
 
-      aiCategory: aiData?.category,
-      sentiment: aiData?.sentiment,
-      priorityScore: score,
-      priorityLevel: level,
-      isEmergency: aiData?.is_emergency,
+      aiCategory,
+      sentiment,
+      priorityScore,
+      priorityLevel,
+      isEmergency,
+      embedding,
+      clusterId,
     });
 
-    if (!newIssue) {
-      return res.status(500).json({ message: "Failed to create issue" });
-    }
-
+    // ================= ISSUE HISTORY =================
     await issueHistoryModel.create({
       issueId: newIssue._id,
       status: "Reported",
@@ -87,6 +108,7 @@ module.exports.createIssue = async (req, res) => {
       },
     });
 
+    // ================= USER PROFILE UPDATE =================
     let userProfile = await userProfileModel.findOne({ userId });
 
     if (!userProfile) {
@@ -101,6 +123,7 @@ module.exports.createIssue = async (req, res) => {
       await userProfile.save();
     }
 
+    // ================= BLOCKCHAIN HASH =================
     const hashPayload = JSON.stringify({
       title: newIssue.title,
       category: newIssue.category,
@@ -117,6 +140,7 @@ module.exports.createIssue = async (req, res) => {
     newIssue.issueHash = issueHash;
     await newIssue.save();
 
+    // ================= BLOCKCHAIN TX =================
     const tx = await contract.createIssue(issueHash);
     const receipt = await tx.wait();
 

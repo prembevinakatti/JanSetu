@@ -56,11 +56,10 @@ const issueSchema = new mongoose.Schema(
     aiCategory: {
       type: String,
     },
-
     sentiment: {
-      type: Object,
+      label: String,
+      score: Number,
     },
-
     priorityScore: {
       type: Number,
       default: 0,
@@ -75,6 +74,15 @@ const issueSchema = new mongoose.Schema(
     isEmergency: {
       type: Boolean,
       default: false,
+    },
+    embedding: {
+      type: [Number],
+      default: [],
+    },
+
+    clusterId: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true },
