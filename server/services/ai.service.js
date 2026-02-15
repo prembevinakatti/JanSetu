@@ -1,14 +1,11 @@
 const axios = require("axios");
 
-const analyzeComplaint = async (text) => {
-  try {
-    const response = await axios.post("http://localhost:8000/analyze", {
-      text,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error analyzing complaint:", error);
-  }
-};
+exports.analyzeComplaint = async (description, latitude, longitude) => {
+  const res = await axios.post("http://localhost:8000/analyze", {
+    description,
+    latitude,
+    longitude,
+  });
 
-module.exports = { analyzeComplaint };
+  return res.data;
+};
