@@ -6,6 +6,7 @@ const authRoute = require("./routes/auth.route");
 const issueRoute = require("./routes/issue.route");
 const adminRoute = require("./routes/admin.route");
 const issueHistoryRoute = require("./routes/issueHistory.route");
+const analyticsRoute = require("./routes/analytics.route");
 const connectDB = require("./config/database");
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/v1/janSetu/auth", authRoute);
 app.use("/api/v1/janSetu/issues", issueRoute);
 app.use("/api/v1/janSetu/admin", adminRoute);
 app.use("/api/v1/janSetu/history", issueHistoryRoute);
+app.use("/api/v1/janSetu/analytics", analyticsRoute);
 
 const PORT = process.env.PORT || 5000;
 
