@@ -1,15 +1,12 @@
 const axios = require("axios");
-const Issue = require("../models/Issue");
+const Issue = require("../models/issue.model");
 
 async function ingestComplaint(data) {
   try {
     // Call Python AI service
-    const aiResponse = await axios.post(
-      "http://localhost:8001/analyze",
-      {
-        description: data.description,
-      }
-    );
+    const aiResponse = await axios.post("http://localhost:8001/analyze", {
+      description: data.description,
+    });
 
     const aiData = aiResponse.data;
 
@@ -24,9 +21,11 @@ async function ingestComplaint(data) {
       clusterId: aiData.clusterId,
       isEmergency: aiData.isEmergency,
     });
-
   } catch (error) {
-    console.error("Ingestion Error:", error.message);
+    console.error(
+      "Ingestion Error FULL:",
+      error.response?.data || error.message || error,
+    );
   }
 }
 
