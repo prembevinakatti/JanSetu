@@ -9,8 +9,11 @@ const issueHistoryRoute = require("./routes/issueHistory.route");
 const analyticsRoute = require("./routes/analytics.route");
 const googleAuthRoute = require("./routes/googleAuth.routes");
 const connectDB = require("./config/database");
+const fetchUnreadEmails = require("./services/email.service");
 
 const app = express();
+
+fetchUnreadEmails()
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
