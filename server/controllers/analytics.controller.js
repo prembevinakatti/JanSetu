@@ -1,66 +1,83 @@
 const issueModel = require("../models/issue.model");
+const emailComplaintModel = require("../models/emailComplaint.model");
+
+/* =========================================================
+   1️⃣ DASHBOARD STATS (COMBINED DATA)
+========================================================= */
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
-    const totalComplaints = await issueModel.countDocuments();
-
-    const activeClusters = await issueModel.distinct("clusterId", {
-      clusterId: { $ne: null },
-    });
-
-    const highPriority = await issueModel.countDocuments({
+    // App Issues
+    const totalIssues = await issueModel.countDocuments();
+    const highPriorityIssues = await issueModel.countDocuments({
       priorityLevel: "High",
     });
 
-    const emergencyIssues = await issueModel.countDocuments({
-      isEmergency: true,
+    // Email Issues
+    const totalEmails = await emailComplaintModel.countDocuments();
+    const highPriorityEmails = await emailComplaintModel.countDocuments({
+      aiPriorityLevel: "High",
     });
 
-    const resolvedIssues = await issueModel.countDocuments({
-      status: "Resolved",
+    // Cluster count (unique across both)
+    const issueClusters = await issueModel.distinct("clusterId", {
+      clusterId: { $ne: null },
     });
 
-    let avgResolutionTime = 0;
+    const emailClusters = await emailComplaintModel.distinct("aiClusterId", {
+      aiClusterId: { $ne: null },
+    });
 
-    if (resolvedIssues > 0) {
-      const totalTime = resolvedIssues.reduce((acc, issue) => {
-        const diff = new Date(issue.updatedAt) - new Date(issue.createdAt);
-        return acc + diff;
-      }, 0);
-
-      avgResolutionTime =
-        totalTime / resolvedIssues.length / (1000 * 60 * 60 * 24);
-    }
+    const activeClusters = new Set([
+      ...issueClusters,
+      ...emailClusters,
+    ]).size;
 
     return res.status(200).json({
       message: "Dashboard stats fetched successfully",
-      succcess: true,
+      success: true,
       data: {
-        totalComplaints,
-        activeClusters: activeClusters.length,
-        highPriority,
-        emergencyIssues,
-        avgResolutionTime: avgResolutionTime.toFixed(2),
+        totalComplaints: totalIssues + totalEmails,
+        totalIssues,
+        totalEmails,
+        activeClusters,
+        highPriority: highPriorityIssues + highPriorityEmails,
       },
     });
   } catch (error) {
-    console.log("Error fetching dashboard stats:", error);
+    console.log("Dashboard Stats Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+/* =========================================================
+   2️⃣ AI SUMMARY (COMBINED)
+========================================================= */
+
 module.exports.getAISummary = async (req, res) => {
   try {
-    const duplicateReports = await issueModel.countDocuments({
-      clusterId: { $ne: null },
+    // Duplicate clusters (only app issues)
+    const duplicateClusters = await issueModel.aggregate([
+      { $group: { _id: "$clusterId", count: { $sum: 1 } } },
+      { $match: { _id: { $ne: null }, count: { $gt: 1 } } },
+    ]);
+
+    const duplicateReports = duplicateClusters.length;
+
+    const negativeIssues = await issueModel.countDocuments({
+      "sentiment.label": { $regex: /^NEGATIVE$/i },
     });
 
-    const negativeSentiments = await issueModel.countDocuments({
-      "sentiment.label": "negative",
+    const negativeEmails = await emailComplaintModel.countDocuments({
+      "aiSentiment.label": { $regex: /^NEGATIVE$/i },
     });
 
-    const escalatedCount = await issueModel.countDocuments({
+    const escalatedIssues = await issueModel.countDocuments({
       priorityLevel: "High",
+    });
+
+    const escalatedEmails = await emailComplaintModel.countDocuments({
+      aiPriorityLevel: "High",
     });
 
     return res.status(200).json({
@@ -68,15 +85,19 @@ module.exports.getAISummary = async (req, res) => {
       success: true,
       data: {
         duplicateReports,
-        negativeSentiments,
-        escalatedCount,
+        negativeSentiments: negativeIssues + negativeEmails,
+        escalatedCount: escalatedIssues + escalatedEmails,
       },
     });
   } catch (error) {
-    console.log("Error fetching AI summary:", error);
+    console.log("AI Summary Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+/* =========================================================
+   3️⃣ DEPARTMENT PERFORMANCE (APP ISSUES ONLY)
+========================================================= */
 
 module.exports.getDepartmentPerformance = async (req, res) => {
   try {
@@ -96,7 +117,7 @@ module.exports.getDepartmentPerformance = async (req, res) => {
 
     const formatted = data.map((dept) => ({
       department: dept._id,
-      reolustionsRate: dept.total
+      resolutionRate: dept.total
         ? ((dept.resolved / dept.total) * 100).toFixed(2)
         : 0,
     }));
@@ -107,10 +128,14 @@ module.exports.getDepartmentPerformance = async (req, res) => {
       data: formatted,
     });
   } catch (error) {
-    console.log("Error fetching department performance:", error);
+    console.log("Department Performance Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+/* =========================================================
+   4️⃣ HOTSPOTS (APP ONLY - GEO BASED)
+========================================================= */
 
 module.exports.getHotspots = async (req, res) => {
   try {
@@ -122,28 +147,37 @@ module.exports.getHotspots = async (req, res) => {
           location: { $first: "$location" },
         },
       },
-      { $match: { _id: { $ne: null } } },
+      {
+        $match: {
+          _id: { $ne: null },
+          count: { $gt: 2 }, // threshold
+        },
+      },
     ]);
 
     return res.status(200).json({
       message: "Hotspots fetched successfully",
       success: true,
-      hotspots: hotspots,
+      data: hotspots,
     });
   } catch (error) {
-    console.log("Error fetching hotspots:", error);
+    console.log("Hotspots Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+/* =========================================================
+   5️⃣ FILTERED ISSUES (APP ONLY)
+========================================================= */
 
 module.exports.getFilteredIssues = async (req, res) => {
   try {
     const { type } = req.query;
 
     if (!type) {
-      return res
-        .status(400)
-        .json({ message: "Type query parameter is required" });
+      return res.status(400).json({
+        message: "Type query parameter is required",
+      });
     }
 
     let query = {};
@@ -153,7 +187,7 @@ module.exports.getFilteredIssues = async (req, res) => {
     }
 
     if (type === "negative") {
-      query = { "sentiment.label": "negative" };
+      query = { "sentiment.label": { $regex: /^NEGATIVE$/i } };
     }
 
     if (type === "high") {
@@ -172,7 +206,51 @@ module.exports.getFilteredIssues = async (req, res) => {
       data: issues,
     });
   } catch (error) {
-    console.log("Error fetching filtered issues:", error);
+    console.log("Filtered Issues Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/* =========================================================
+   6️⃣ RECENT COMPLAINTS (COMBINED APP + EMAIL)
+========================================================= */
+
+module.exports.getRecentIssues = async (req, res) => {
+  try {
+    const issues = await issueModel.find().lean();
+    const emails = await emailComplaintModel.find().lean();
+
+    const formattedEmails = emails.map((mail) => ({
+      _id: mail._id,
+      title: mail.subject,
+      category: "Email",
+      priorityLevel: mail.aiPriorityLevel,
+      clusterId: mail.aiClusterId,
+      createdAt: mail.createdAt,
+      source: "email",
+    }));
+
+    const formattedIssues = issues.map((issue) => ({
+      _id: issue._id,
+      title: issue.title,
+      category: issue.category,
+      priorityLevel: issue.priorityLevel,
+      clusterId: issue.clusterId,
+      createdAt: issue.createdAt,
+      source: "app",
+    }));
+
+    const combined = [...formattedIssues, ...formattedEmails]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 20);
+
+    return res.status(200).json({
+      message: "Recent complaints fetched successfully",
+      success: true,
+      data: combined,
+    });
+  } catch (error) {
+    console.log("Recent Issues Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

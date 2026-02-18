@@ -5,7 +5,7 @@ async function ingestComplaint(data) {
   try {
     // 🔥 Call Python AI Service
     const aiResponse = await axios.post(
-      "http://localhost:8001/analyze",
+      "http://localhost:8000/analyze",
       {
         description: data.description,
         latitude: 0,     // temporary default
@@ -33,9 +33,17 @@ async function ingestComplaint(data) {
 
     console.log("Email AI Updated:", updated._id);
 
-  } catch (error) {
-    console.error("Ingestion Error FULL:", error.response?.data || error.message);
+  }  catch (error) {
+  console.error("Ingestion Error FULL:",error);
+  
+  if (error.response) {
+    console.error("Status:", error.response.status);
+    console.error("Data:", error.response.data);
+  } else {
+    console.error(error.message);
   }
+}
+
 }
 
 module.exports = ingestComplaint;

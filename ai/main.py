@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from models.request_models import ComplaintRequest
 from services.embedding_engine import generate_embedding
-from services.nlp_engine import analyze_text
 from services.similarity_engine import detect_similar
+from services.nlp_engine import analyze_text
 from services.priority_engine import calculate_priority
 
 app = FastAPI()
-
 
 @app.post("/analyze")
 async def analyze_complaint(data: ComplaintRequest):
@@ -14,28 +13,27 @@ async def analyze_complaint(data: ComplaintRequest):
     # 1️⃣ Generate embedding
     embedding = generate_embedding(data.description)
 
-    # 2️⃣ NLP analysis
-    nlp_result = analyze_text(data.description)
-
-    # 3️⃣ Similarity + cluster detection
+    # 2️⃣ Detect similarity
     similarity_data = detect_similar(embedding)
 
     cluster_id = similarity_data["clusterId"]
-    is_similar = similarity_data["similarComplaint"]
+    cluster_size = similarity_data["clusterSize"]
 
-    # 4️⃣ Priority calculation
+    # 3️⃣ Sentiment
+    sentiment = analyze_text(data.description)
+
+    # 4️⃣ Priority
     priority = calculate_priority(
-        sentiment_score=nlp_result["sentiment"]["score"],
-        is_emergency=False,
-        hotspot_boost=10 if is_similar else 0
+        sentiment_score=sentiment["score"],
+        text=data.description,
+        cluster_size=cluster_size
     )
 
-    # 5️⃣ Return FULL AI response
     return {
-        "sentiment": nlp_result["sentiment"],
-        "embedding": embedding,
         "clusterId": cluster_id,
-        "similarComplaint": is_similar,
+        "clusterSize": cluster_size,
+        "sentiment": sentiment,
         "priorityScore": priority["score"],
-        "priorityLevel": priority["level"]
+        "priorityLevel": priority["level"],
+        "similarityScore": similarity_data["similarityScore"]
     }

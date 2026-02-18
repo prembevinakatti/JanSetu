@@ -1,43 +1,48 @@
+from sklearn.metrics.pairwise import cosine_similarity
 import uuid
 from utils.db import issues_collection
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
-SIMILARITY_THRESHOLD = 0.85
+SIMILARITY_THRESHOLD = 0.80
 
 def detect_similar(new_embedding):
 
-    existing = list(
-        issues_collection.find({"embedding": {"$exists": True}})
+    existing_issues = list(
+        issues_collection.find({}, {"embedding": 1, "clusterId": 1})
     )
 
-    if not existing:
-        # First complaint in system
+    best_score = 0
+    best_cluster_id = None
+    cluster_size = 1
+
+    for issue in existing_issues:
+        if "embedding" in issue:
+
+            score = cosine_similarity(
+                [new_embedding],
+                [issue["embedding"]]
+            )[0][0]
+
+            if score > best_score:
+                best_score = score
+                best_cluster_id = issue.get("clusterId")
+
+    # ✅ If similar complaint found
+    if best_score >= SIMILARITY_THRESHOLD and best_cluster_id:
+        cluster_size = issues_collection.count_documents({
+            "clusterId": best_cluster_id
+        }) + 1
+
         return {
-            "clusterId": str(uuid.uuid4()),
-            "similarComplaint": False
+            "clusterId": best_cluster_id,
+            "clusterSize": cluster_size,
+            "similarityScore": float(best_score)
         }
 
-    max_score = 0
-    best_cluster = None
+    # ❌ Create new cluster
+    new_cluster = str(uuid.uuid4())
 
-    new_vector = np.array(new_embedding).reshape(1, -1)
-
-    for issue in existing:
-        old_vector = np.array(issue["embedding"]).reshape(1, -1)
-        score = cosine_similarity(new_vector, old_vector)[0][0]
-
-        if score > max_score:
-            max_score = score
-            best_cluster = issue.get("clusterId")
-
-    if max_score >= SIMILARITY_THRESHOLD:
-        return {
-            "clusterId": best_cluster,
-            "similarComplaint": True
-        }
-    else:
-        return {
-            "clusterId": str(uuid.uuid4()),
-            "similarComplaint": False
-        }
+    return {
+        "clusterId": new_cluster,
+        "clusterSize": 1,
+        "similarityScore": float(best_score)
+    }
