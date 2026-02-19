@@ -47,7 +47,6 @@ module.exports.createIssue = async (req, res) => {
     // ================= AI ANALYSIS =================
     const aiData = await analyzeComplaint(description, latitude, longitude);
     console.log(aiData);
-    
 
     /*
     Expected AI Response:
@@ -239,4 +238,40 @@ module.exports.getUserIssues = async (req, res) => {
     console.error("Error fetching user issues:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+module.exports.getIssueByFilters = async (req, res) => {
+  try {
+    const { category } = req.query;
+    let filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+    // if (status) {
+    //   filter.status = status;
+    // }
+
+    // if (latitude && longitude) {
+    //   filter.location = {
+    //     $near: {
+    //       $geometry: {
+    //         type: "Point",
+    //         coordinates: [Number(longitude), Number(latitude)],
+    //       },
+    //     },
+    //   };
+    // }
+
+    const issues = await issueModel
+      .find(filter)
+      .populate("createdBy")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      issues,
+    });
+  } catch (error) {}
 };
