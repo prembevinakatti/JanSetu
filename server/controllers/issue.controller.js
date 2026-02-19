@@ -264,6 +264,7 @@ module.exports.getIssueByFilters = async (req, res) => {
     //   };
     // }
 
+    
     const issues = await issueModel
       .find(filter)
       .populate("createdBy")
