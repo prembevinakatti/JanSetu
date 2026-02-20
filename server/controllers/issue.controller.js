@@ -242,29 +242,26 @@ module.exports.getUserIssues = async (req, res) => {
 
 module.exports.getIssueByFilters = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, status, priority, search } = req.query;
+
     let filter = {};
 
-    if (category) {
+    if (category && category !== "All") {
       filter.category = category;
     }
 
-    // if (status) {
-    //   filter.status = status;
-    // }
+    if (status && status !== "All") {
+      filter.status = status;
+    }
 
-    // if (latitude && longitude) {
-    //   filter.location = {
-    //     $near: {
-    //       $geometry: {
-    //         type: "Point",
-    //         coordinates: [Number(longitude), Number(latitude)],
-    //       },
-    //     },
-    //   };
-    // }
+    if (priority && priority !== "All") {
+      filter.priority = priority;
+    }
 
-    
+    if (search) {
+      filter.title = { $regex: search, $options: "i" };
+    }
+
     const issues = await issueModel
       .find(filter)
       .populate("createdBy")
@@ -272,7 +269,14 @@ module.exports.getIssueByFilters = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      count: issues.length,
       issues,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Filter error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch filtered issues",
+    });
+  }
 };
