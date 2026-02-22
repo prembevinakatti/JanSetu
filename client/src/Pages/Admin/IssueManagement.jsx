@@ -238,6 +238,7 @@ const IssueManagement = () => {
         </div>
       )}
 
+
       <Footer />
     </div>
   );
