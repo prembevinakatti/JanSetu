@@ -14,7 +14,7 @@ const fetchUnreadEmails = require("./services/email.service");
 
 const app = express();
 
-fetchUnreadEmails();
+// fetchUnreadEmails();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
