@@ -3,47 +3,57 @@ const EmailComplaint = require("../models/emailComplaint.model");
 
 async function ingestComplaint(data) {
   try {
-    // 🔥 Call Python AI Service
+    if (!data.description || !data.emailId) {
+      console.log("Invalid ingestion data");
+      return;
+    }
+
     const aiResponse = await axios.post(
       "http://localhost:8000/analyze",
       {
         description: data.description,
-        latitude: 0,     // temporary default
-        longitude: 0,    // temporary default
+        latitude: 0,
+        longitude: 0,
       }
     );
 
     const aiData = aiResponse.data;
 
-    // ✅ Update EmailComplaint with AI Results
+    if (!aiData) {
+      console.log("Empty AI response");
+      return;
+    }
+
     const updated = await EmailComplaint.findByIdAndUpdate(
-      data.emailId,   // IMPORTANT: pass email document ID
+      data.emailId,
       {
-        isCivic: aiData.category !== "Other",
+        isCivic: aiData.category !== "General",
         aiCategory: aiData.category,
         aiSentiment: aiData.sentiment,
         aiPriorityScore: aiData.priorityScore,
         aiPriorityLevel: aiData.priorityLevel,
         aiClusterId: aiData.clusterId,
-        isEmergency: aiData.isEmergency,
+        aiTags: aiData.tags,
+        isEmergency: aiData.isEmergency || false,
         isProcessed: true,
       },
       { new: true }
     );
 
-    console.log("Email AI Updated:", updated._id);
+    if (updated) {
+      console.log("Email AI Updated:", updated._id);
+    }
 
-  }  catch (error) {
-  console.error("Ingestion Error FULL:",error);
-  
-  if (error.response) {
-    console.error("Status:", error.response.status);
-    console.error("Data:", error.response.data);
-  } else {
-    console.error(error.message);
+  } catch (error) {
+    console.error("Ingestion Error FULL:", error);
+
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+    } else {
+      console.error(error.message);
+    }
   }
-}
-
 }
 
 module.exports = ingestComplaint;

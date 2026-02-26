@@ -7,40 +7,39 @@ import useDashboardData from "@/hooks/useGetDashboardData";
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const {
-    stats,
-    aiSummary,
-    recentIssues,
-    emailComplaints,
-    loading,
-    error,
-  } = useDashboardData();
+  const { stats, aiSummary, recentIssues, emailComplaints, loading, error } =
+    useDashboardData();
 
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalData, setModalData] = useState([]);
+
+  console.log("Dashboard Data:", {
+    stats,
+    aiSummary,
+    recentIssues,
+    emailComplaints,
+  });
 
   const openDetails = (type) => {
     let filtered = [];
 
     if (type === "duplicate") {
       filtered = recentIssues.filter(
-        (i) => i.clusterId && i.clusterId !== null
+        (i) => i.clusterId && i.clusterId !== null,
       );
       setModalTitle("Duplicate Reports");
     }
 
     if (type === "negative") {
       filtered = recentIssues.filter(
-        (i) => i.sentiment?.label?.toUpperCase() === "NEGATIVE"
+        (i) => i.sentiment?.label?.toUpperCase() === "NEGATIVE",
       );
       setModalTitle("Negative Sentiment Complaints");
     }
 
     if (type === "high") {
-      filtered = recentIssues.filter(
-        (i) => i.priorityLevel === "High"
-      );
+      filtered = recentIssues.filter((i) => i.priorityLevel === "High");
       setModalTitle("High Priority Complaints");
     }
 
@@ -71,9 +70,7 @@ const AdminDashboard = () => {
       {/* HERO */}
       <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white py-14 px-6 mt-16">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold">
-            Smart City AI Dashboard
-          </h1>
+          <h1 className="text-4xl font-bold">Smart City AI Dashboard</h1>
           <p className="mt-3 text-lg opacity-90">
             AI-powered complaint analysis & prioritization system
           </p>
@@ -85,12 +82,8 @@ const AdminDashboard = () => {
         <section className="max-w-7xl mx-auto px-6 mt-8">
           <div className="bg-red-600 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
             <div>
-              <h3 className="font-bold text-lg">
-                🚨 High Priority Issues
-              </h3>
-              <p>
-                {stats.highPriority} urgent complaints require attention
-              </p>
+              <h3 className="font-bold text-lg">🚨 High Priority Issues</h3>
+              <p>{stats.highPriority} urgent complaints require attention</p>
             </div>
             <button
               onClick={() => navigate("/issuemanagement?filter=high")}
@@ -104,7 +97,10 @@ const AdminDashboard = () => {
 
       {/* 📊 Stats */}
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-4 gap-6">
-        <StatCard title="Total Complaints" value={stats?.totalComplaints || 0} />
+        <StatCard
+          title="Total Complaints"
+          value={stats?.totalComplaints || 0}
+        />
         <StatCard title="Active Clusters" value={stats?.activeClusters || 0} />
         <StatCard title="High Priority" value={stats?.highPriority || 0} />
         <StatCard
@@ -115,9 +111,7 @@ const AdminDashboard = () => {
 
       {/* 🧠 AI Insights */}
       <section className="max-w-7xl mx-auto px-6 py-6">
-        <h2 className="text-2xl font-bold mb-6">
-          AI Complaint Intelligence
-        </h2>
+        <h2 className="text-2xl font-bold mb-6">AI Complaint Intelligence</h2>
 
         <div className="grid md:grid-cols-3 gap-6">
           <InsightCard
@@ -142,9 +136,7 @@ const AdminDashboard = () => {
 
       {/* 📑 Recent Complaints */}
       <section className="max-w-7xl mx-auto px-6 pb-16">
-        <h2 className="text-2xl font-bold mb-4">
-          Recent Complaints
-        </h2>
+        <h2 className="text-2xl font-bold mb-4">Recent Complaints</h2>
 
         <div className="overflow-x-auto bg-white rounded-xl shadow">
           <table className="w-full text-left text-sm">
@@ -163,9 +155,7 @@ const AdminDashboard = () => {
                 <tr key={issue._id} className="border-t">
                   <td className="p-4">{issue.title}</td>
                   <td className="p-4">{issue.category}</td>
-                  <td className="p-4 font-semibold">
-                    {issue.priorityLevel}
-                  </td>
+                  <td className="p-4 font-semibold">{issue.priorityLevel}</td>
                   <td className="p-4">{issue.clusterId || "-"}</td>
                   <td className="p-4">
                     {new Date(issue.createdAt).toLocaleDateString()}
@@ -179,9 +169,7 @@ const AdminDashboard = () => {
 
       {/* 📧 Email Complaints */}
       <section className="max-w-7xl mx-auto px-6 pb-16">
-        <h2 className="text-2xl font-bold mb-4">
-          Email Complaints
-        </h2>
+        <h2 className="text-2xl font-bold mb-4">Email Complaints</h2>
 
         <div className="overflow-x-auto bg-white rounded-xl shadow">
           <table className="w-full text-left text-sm">

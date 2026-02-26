@@ -57,26 +57,6 @@ function extractBody(payload) {
   return body.trim();
 }
 
-/* ================= CIVIC KEYWORDS ================= */
-
-const civicKeywords = [
-  "pothole",
-  "garbage",
-  "drainage",
-  "streetlight",
-  "water leakage",
-  "traffic signal",
-  "road damage",
-  "road crack",
-  "sewage",
-  "overflow",
-];
-
-function isCivicComplaint(text) {
-  const lower = text.toLowerCase();
-  return civicKeywords.some((word) => lower.includes(word));
-}
-
 /* ================= FETCH EMAILS ================= */
 
 async function fetchUnreadEmails() {
@@ -116,38 +96,26 @@ async function fetchUnreadEmails() {
           headers.find((h) => h.name === "From")?.value || "";
 
         const cleanBody = extractBody(msg.data.payload);
-
         const combinedText = subject + " " + cleanBody;
 
-        // ❌ Skip non-civic
-        if (!isCivicComplaint(combinedText)) {
-          console.log("Skipped (Not Civic):", subject);
-
-          await gmail.users.messages.modify({
-            userId: "me",
-            id: message.id,
-            requestBody: { removeLabelIds: ["UNREAD"] },
-          });
-
-          continue;
-        }
-
-        console.log("Processing Civic Email:", subject);
+        console.log("Processing Email:", subject);
 
         // ✅ Save raw email
         const emailDoc = await EmailComplaint.create({
           subject,
           body: cleanBody,
           from,
+          source: "email",
+          isProcessed: false,
         });
 
         // ✅ Send to AI
         await ingestComplaint({
           emailId: emailDoc._id,
-          description: cleanBody,
+          description: combinedText,
         });
 
-        // ✅ Mark as read
+        // ✅ Mark email as read
         await gmail.users.messages.modify({
           userId: "me",
           id: message.id,
@@ -158,7 +126,6 @@ async function fetchUnreadEmails() {
         console.error("Single Email Error:", innerError.message);
       }
     }
-
   } catch (error) {
     console.error("Email Fetch Error:", error.message);
   }

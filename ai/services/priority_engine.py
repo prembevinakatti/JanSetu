@@ -1,40 +1,33 @@
 def calculate_priority(
     sentiment_score,
     text=None,
-    is_emergency=False,
-    cluster_size=1
+    cluster_size=1,
+    tags=None
 ):
-
-    # 🔥 Stronger base weight
     base_score = sentiment_score * 50
 
-    # ⚠️ Smart keyword detection (partial match)
+    # Keyword boost
     if text:
         critical_keywords = [
-            "infect",
-            "accident",
-            "fire",
-            "danger",
-            "injury",
-            "flood",
-            "overflow",
-            "garbage"
+            "infect", "accident", "fire",
+            "danger", "injury", "flood"
         ]
 
         if any(word in text.lower() for word in critical_keywords):
             base_score += 25
 
-    # 📈 Cluster boost
+    # Cluster boost
     base_score += min(cluster_size * 7, 20)
 
-    # 🚨 Emergency boost
-    if is_emergency:
-        base_score += 30
+    # Tag boost (NEW)
+    if tags:
+        if "Emergency" in tags:
+            base_score += 30
+        if "Health" in tags:
+            base_score += 20
 
-    # Cap
     base_score = min(base_score, 100)
 
-    # Priority levels (more realistic)
     if base_score >= 70:
         level = "High"
     elif base_score >= 45:
