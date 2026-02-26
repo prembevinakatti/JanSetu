@@ -3,6 +3,7 @@ const EmailComplaint = require("../models/emailComplaint.model");
 
 async function ingestComplaint(data) {
   try {
+
     if (!data.description || !data.emailId) {
       console.log("Invalid ingestion data");
       return;
@@ -19,8 +20,8 @@ async function ingestComplaint(data) {
 
     const aiData = aiResponse.data;
 
-    if (!aiData) {
-      console.log("Empty AI response");
+    if (!aiData || !aiData.category) {
+      console.log("Invalid AI response");
       return;
     }
 
@@ -29,11 +30,11 @@ async function ingestComplaint(data) {
       {
         isCivic: aiData.category !== "General",
         aiCategory: aiData.category,
-        aiSentiment: aiData.sentiment,
-        aiPriorityScore: aiData.priorityScore,
-        aiPriorityLevel: aiData.priorityLevel,
+        aiTags: aiData.tags || [],
+        aiSentiment: aiData.sentiment || {},
+        aiPriorityScore: aiData.priorityScore || 0,
+        aiPriorityLevel: aiData.priorityLevel || "Low",
         aiClusterId: aiData.clusterId,
-        aiTags: aiData.tags,
         isEmergency: aiData.isEmergency || false,
         isProcessed: true,
       },
@@ -45,13 +46,11 @@ async function ingestComplaint(data) {
     }
 
   } catch (error) {
-    console.error("Ingestion Error FULL:", error);
+    console.error("Ingestion Error FULL:", error.message);
 
     if (error.response) {
       console.error("Status:", error.response.status);
       console.error("Data:", error.response.data);
-    } else {
-      console.error(error.message);
     }
   }
 }

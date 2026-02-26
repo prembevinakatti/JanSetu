@@ -1,30 +1,33 @@
+# services/priority_engine.py
+
 def calculate_priority(
     sentiment_score,
     text=None,
     cluster_size=1,
-    tags=None
+    is_emergency=False
 ):
+
     base_score = sentiment_score * 50
 
-    # Keyword boost
     if text:
         critical_keywords = [
-            "infect", "accident", "fire",
-            "danger", "injury", "flood"
+            "infect",
+            "accident",
+            "fire",
+            "danger",
+            "injury",
+            "flood",
+            "overflow",
+            "garbage"
         ]
 
         if any(word in text.lower() for word in critical_keywords):
             base_score += 25
 
-    # Cluster boost
     base_score += min(cluster_size * 7, 20)
 
-    # Tag boost (NEW)
-    if tags:
-        if "Emergency" in tags:
-            base_score += 30
-        if "Health" in tags:
-            base_score += 20
+    if is_emergency:
+        base_score += 30
 
     base_score = min(base_score, 100)
 
