@@ -1,4 +1,7 @@
-/* Floating Toggle Button */
+/* ============================= */
+/* FLOATING CHAT BUTTON */
+/* ============================= */
+
 .chat-toggle {
   position: fixed;
   bottom: 25px;
@@ -16,20 +19,23 @@
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   transition: all 0.3s ease;
   animation: pulse 2s infinite;
+  z-index: 1000;
 }
 
 .chat-toggle:hover {
   transform: scale(1.1);
 }
 
-/* Pulse animation */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
   70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
   100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
 }
 
-/* Chat Container */
+/* ============================= */
+/* CHAT CONTAINER */
+/* ============================= */
+
 .chat-container {
   position: fixed;
   bottom: 100px;
@@ -37,13 +43,14 @@
   width: 360px;
   height: 520px;
   backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 50px rgba(0,0,0,0.25);
   overflow: hidden;
   animation: slideUp 0.4s ease;
+  z-index: 1000;
 }
 
 @keyframes slideUp {
@@ -51,7 +58,10 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Header */
+/* ============================= */
+/* HEADER */
+/* ============================= */
+
 .chat-header {
   background: linear-gradient(135deg, #2563eb, #1e3a8a);
   color: white;
@@ -72,7 +82,10 @@
   transform: rotate(90deg);
 }
 
-/* Body */
+/* ============================= */
+/* BODY */
+/* ============================= */
+
 .chat-body {
   flex: 1;
   padding: 15px;
@@ -91,9 +104,12 @@
   border-radius: 10px;
 }
 
-/* Chat Bubbles */
+/* ============================= */
+/* CHAT BUBBLES */
+/* ============================= */
+
 .chat-bubble {
-  max-width: 75%;
+  max-width: 80%;
   padding: 10px 14px;
   margin-bottom: 12px;
   border-radius: 18px;
@@ -122,28 +138,99 @@
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
 
-/* Cards */
+/* ============================= */
+/* CARD CONTAINERS */
+/* ============================= */
+
 .card-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.complaint-card,
-.hotspot-card {
+/* ============================= */
+/* STAT CARD */
+/* ============================= */
+
+.stat-card {
+  background: #e0f2fe;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #1e3a8a;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 6px;
+  color: #0f172a;
+}
+
+/* ============================= */
+/* COMPARISON CARD */
+/* ============================= */
+
+.comparison-card {
+  display: flex;
+  justify-content: space-between;
   background: #f1f5f9;
   padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.comparison-card span {
+  font-weight: 600;
+  color: #1e40af;
+}
+
+/* ============================= */
+/* HOTSPOT CARD */
+/* ============================= */
+
+.hotspot-card {
+  background: #fef3c7;
+  padding: 10px;
   border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 14px;
 }
 
-.complaint-card:hover,
-.hotspot-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.hotspot-card strong {
+  display: block;
+  color: #92400e;
 }
 
-/* Status Badge */
+.hotspot-card span {
+  font-size: 13px;
+  color: #78350f;
+}
+
+/* ============================= */
+/* LIST CARD */
+/* ============================= */
+
+.list-card {
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.list-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ============================= */
+/* STATUS BADGE */
+/* ============================= */
+
 .status {
   display: inline-block;
   margin-top: 5px;
@@ -157,7 +244,10 @@
 .status.resolved { background: #10b981; }
 .status.rejected { background: #ef4444; }
 
-/* Typing Indicator */
+/* ============================= */
+/* TYPING INDICATOR */
+/* ============================= */
+
 .typing {
   display: flex;
   gap: 5px;
@@ -179,7 +269,10 @@
   40% { transform: scale(1); }
 }
 
-/* Footer */
+/* ============================= */
+/* FOOTER */
+/* ============================= */
+
 .chat-footer {
   display: flex;
   padding: 10px;
@@ -194,6 +287,7 @@
   border: 1px solid #d1d5db;
   outline: none;
   transition: 0.2s;
+  font-size: 14px;
 }
 
 .chat-footer input:focus {
@@ -210,8 +304,43 @@
   color: white;
   cursor: pointer;
   transition: 0.2s;
+  font-size: 14px;
 }
 
 .chat-footer button:hover {
   transform: scale(1.05);
+}
+
+.complaint-summary {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1e3a8a;
+}
+
+.complaint-card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.complaint-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.category {
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #1e40af;
+}
+
+.location {
+  font-size: 12px;
+  color: #475569;
+  margin-top: 5px;
 }
