@@ -6,5 +6,4 @@ router = APIRouter()
 
 @router.post("/chat")
 async def chat_endpoint(data: ChatRequest):
-    reply = await process_chat(data.message)
-    return {"reply": reply}
+    return await process_chat(data.message)
