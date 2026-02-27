@@ -1,6 +1,8 @@
 # main.py
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from models.request_models import ComplaintRequest
 from services.embedding_engine import generate_embedding
 from services.similarity_engine import detect_similar
@@ -8,8 +10,21 @@ from services.nlp_engine import analyze_text
 from services.priority_engine import calculate_priority
 from services.tag_engine import auto_tag
 from services.category_engine import derive_category_from_tags
+from routes.chat_routes import router as chat_router
 
 app = FastAPI()
+
+# ✅ CORS FIX (IMPORTANT)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development (React localhost)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include chatbot routes
+app.include_router(chat_router)
 
 
 @app.post("/analyze")
