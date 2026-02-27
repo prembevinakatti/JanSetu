@@ -1,11 +1,10 @@
 from utils.db import issues_collection
 from collections import Counter
 
-async def get_hotspots():
-    complaints = await complaints_collection.find().to_list(length=1000)
+def get_hotspots():
+    complaints = list(issues_collection.find({}, {"location": 1}))
+    locations = [c.get("location") for c in complaints if c.get("location")]
 
-    locations = [c["location"] for c in complaints if "location" in c]
+    counter = Counter(locations)
 
-    hotspot_data = Counter(locations)
-
-    return hotspot_data.most_common(5)
+    return counter.most_common(5)
