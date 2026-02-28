@@ -72,10 +72,10 @@ const ChatBot = () => {
   const renderMessage = (msg, index) => {
     if (!msg) return null;
 
-    // 🔥 UNWRAP NESTED RESPONSE (IMPORTANT FIX)
-    if (msg.type === "text" && msg.data && typeof msg.data === "object") {
-      msg = msg.data;
-    }
+    // // 🔥 UNWRAP NESTED RESPONSE (IMPORTANT FIX)
+    // if (msg.type === "text" && msg.data && typeof msg.data === "object") {
+    //   msg = msg.data;
+    // }
 
     // TEXT MESSAGE
     if (msg.type === "text") {
@@ -112,6 +112,17 @@ const ChatBot = () => {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (msg.type === "count") {
+      return (
+        <div key={index} className="chat-bubble bot">
+          <div className="stat-card">
+            <h4>Total Web Complaints</h4>
+            <div className="stat-value">{msg.total}</div>
           </div>
         </div>
       );
