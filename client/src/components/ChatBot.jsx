@@ -69,6 +69,8 @@ const ChatBot = () => {
     setLoading(false);
   };
 
+  
+
   const renderMessage = (msg, index) => {
     if (!msg) return null;
 

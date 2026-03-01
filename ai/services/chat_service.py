@@ -46,3 +46,5 @@ async def process_chat(message: str):
         "type": "text",
         "message": answer
     }
+
+    
