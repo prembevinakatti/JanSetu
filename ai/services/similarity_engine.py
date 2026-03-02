@@ -2,7 +2,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import uuid
 from utils.db import issues_collection
 
-SIMILARITY_THRESHOLD = 0.80
+SIMILARITY_THRESHOLD = 0.75
 
 
 def detect_similar(new_embedding):
@@ -15,18 +15,30 @@ def detect_similar(new_embedding):
             "similarityScore": 0.0
         }
 
-    existing_issues = list(
-        issues_collection.find({}, {"embedding": 1, "clusterId": 1})
+    # ✅ Get one representative embedding per cluster
+    existing_clusters = list(
+        issues_collection.aggregate([
+            {
+                "$match": {"clusterId": {"$exists": True}}
+            },
+            {
+                "$group": {
+                    "_id": "$clusterId",
+                    "embedding": {"$first": "$embedding"}
+                }
+            }
+        ])
     )
 
-    best_score = 0
+    best_score = 0.0
     best_cluster_id = None
 
-    for issue in existing_issues:
+    for cluster in existing_clusters:
 
-        embedding = issue.get("embedding")
+        embedding = cluster.get("embedding")
+        cluster_id = cluster.get("_id")  # IMPORTANT FIX
 
-        # ✅ Skip invalid embeddings
+        # Skip invalid embeddings
         if not embedding or len(embedding) == 0:
             continue
 
@@ -40,7 +52,7 @@ def detect_similar(new_embedding):
 
         if score > best_score:
             best_score = score
-            best_cluster_id = issue.get("clusterId")
+            best_cluster_id = cluster_id   # IMPORTANT FIX
 
     # ✅ If similar complaint found
     if best_score >= SIMILARITY_THRESHOLD and best_cluster_id:
@@ -55,7 +67,7 @@ def detect_similar(new_embedding):
             "similarityScore": float(best_score)
         }
 
-    # ❌ Create new cluster
+    # ❌ Otherwise create new cluster
     new_cluster = str(uuid.uuid4())
 
     return {
