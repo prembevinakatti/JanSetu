@@ -24,11 +24,33 @@ const AdminDashboard = () => {
   const openDetails = (type) => {
     let filtered = [];
 
+    // ✅ DUPLICATE REPORTS GROUPING (ADDED LOGIC)
     if (type === "duplicate") {
-      filtered = recentIssues.filter(
-        (i) => i.clusterId && i.clusterId !== null,
+      const grouped = {};
+
+      recentIssues.forEach((issue) => {
+        if (issue.clusterId && issue.clusterId !== null) {
+          if (!grouped[issue.clusterId]) {
+            grouped[issue.clusterId] = [];
+          }
+          grouped[issue.clusterId].push(issue);
+        }
+      });
+
+      const formatted = Object.entries(grouped).map(
+        ([clusterId, issues]) => ({
+          clusterId,
+          count: issues.length,
+          mainTitle: issues[0].title,
+          priority: issues[0].priorityLevel,
+          issues,
+        })
       );
+
       setModalTitle("Duplicate Reports");
+      setModalData(formatted);
+      setShowModal(true);
+      return;
     }
 
     if (type === "negative") {
@@ -167,40 +189,7 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      {/* 📧 Email Complaints */}
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <h2 className="text-2xl font-bold mb-4">Email Complaints</h2>
-
-        <div className="overflow-x-auto bg-white rounded-xl shadow">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100 font-semibold">
-              <tr>
-                <th className="p-4">Subject</th>
-                <th className="p-4">Priority</th>
-                <th className="p-4">Sentiment</th>
-                <th className="p-4">Score</th>
-                <th className="p-4">Date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {emailComplaints?.map((mail) => (
-                <tr key={mail._id} className="border-t">
-                  <td className="p-4">{mail.subject}</td>
-                  <td className="p-4">{mail.aiPriorityLevel || "-"}</td>
-                  <td className="p-4">{mail.aiSentiment?.label || "-"}</td>
-                  <td className="p-4">{mail.aiPriorityScore || "-"}</td>
-                  <td className="p-4">
-                    {new Date(mail.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Modal */}
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white w-3/4 rounded-xl p-6 max-h-[80vh] overflow-y-auto">
@@ -214,11 +203,47 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            {modalData.map((item) => (
-              <div key={item._id} className="border-b py-2">
-                {item.title}
-              </div>
-            ))}
+            {/* ✅ DUPLICATE DISPLAY */}
+            {modalTitle === "Duplicate Reports" ? (
+              modalData.length === 0 ? (
+                <p>No duplicate reports found.</p>
+              ) : (
+                modalData.map((group) => (
+                  <div
+                    key={group.clusterId}
+                    className="mb-6 p-4 bg-gray-50 rounded-lg shadow"
+                  >
+                    <h3 className="font-semibold text-lg">
+                      🔁 Duplicate Cluster ({group.count} Reports)
+                    </h3>
+
+                    <p className="mt-2 font-medium">
+                      Main Issue: {group.mainTitle}
+                    </p>
+
+                    <div className="text-sm text-gray-600 mt-1">
+                      Cluster ID: {group.clusterId}
+                    </div>
+
+                    <div className="text-sm text-gray-600">
+                      Priority: {group.priority || "Not Set"}
+                    </div>
+
+                    <div className="mt-3 text-sm text-blue-600">
+                      {group.issues.map((i) => (
+                        <div key={i._id}>• {i.title}</div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )
+            ) : (
+              modalData.map((item) => (
+                <div key={item._id} className="border-b py-2">
+                  {item.title}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
