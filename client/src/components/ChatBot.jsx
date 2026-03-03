@@ -42,6 +42,7 @@ const ChatBot = () => {
       });
 
       const botData = res.data;
+      
 
       
       if (typeof botData === "object" && botData !== null) {
