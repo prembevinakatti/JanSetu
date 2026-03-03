@@ -43,6 +43,7 @@ const ChatBot = () => {
 
       const botData = res.data;
 
+      
       if (typeof botData === "object" && botData !== null) {
         setMessages((prev) => [...prev, { ...botData, sender: "bot" }]);
       } else {
