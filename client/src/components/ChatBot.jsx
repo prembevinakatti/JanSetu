@@ -41,6 +41,8 @@ const ChatBot = () => {
         message: userMessage,
       });
 
+      
+
       const botData = res.data;
       
       if (typeof botData === "object" && botData !== null) {
