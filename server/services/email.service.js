@@ -14,7 +14,7 @@ const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
-  REDIRECT_URI
+  REDIRECT_URI,
 );
 
 oAuth2Client.setCredentials({
@@ -26,14 +26,37 @@ const gmail = google.gmail({
   auth: oAuth2Client,
 });
 
+function isCivicIssue(text) {
+  const keywords = [
+    "pothole",
+    "garbage",
+    "waste",
+    "streetlight",
+    "water leakage",
+    "sewage",
+    "drainage",
+    "road damage",
+    "traffic signal",
+    "broken road",
+    "sanitation",
+    "noise complaint",
+    "water supply",
+  ];
+
+  const lowerText = text.toLowerCase();
+
+  return keywords.some((keyword) => lowerText.includes(keyword));
+}
+
 /* ================= CLEAN BODY ================= */
 
 function extractBody(payload) {
   if (!payload) return "";
 
   const decode = (data) =>
-    Buffer.from(data.replace(/-/g, "+").replace(/_/g, "/"), "base64")
-      .toString("utf-8");
+    Buffer.from(data.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString(
+      "utf-8",
+    );
 
   let body = "";
 
@@ -89,16 +112,24 @@ async function fetchUnreadEmails() {
 
         const headers = msg.data.payload.headers;
 
-        const subject =
-          headers.find((h) => h.name === "Subject")?.value || "";
+        const subject = headers.find((h) => h.name === "Subject")?.value || "";
 
-        const from =
-          headers.find((h) => h.name === "From")?.value || "";
+        const from = headers.find((h) => h.name === "From")?.value || "";
 
         const cleanBody = extractBody(msg.data.payload);
-        const combinedText = subject + " " + cleanBody;
 
         console.log("Processing Email:", subject);
+
+        // ✅ Save raw email
+        const combinedText = subject + " " + cleanBody;
+
+        // 🚫 Ignore non-civic emails
+        if (!isCivicIssue(combinedText)) {
+          console.log("Skipping non-civic email:", subject);
+          return;
+        }
+
+        console.log("Processing Civic Complaint:", subject);
 
         // ✅ Save raw email
         const emailDoc = await EmailComplaint.create({
@@ -121,7 +152,6 @@ async function fetchUnreadEmails() {
           id: message.id,
           requestBody: { removeLabelIds: ["UNREAD"] },
         });
-
       } catch (innerError) {
         console.error("Single Email Error:", innerError.message);
       }
