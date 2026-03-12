@@ -16,17 +16,22 @@ import {
   Bar,
 } from "recharts";
 
-import { MapContainer, TileLayer, Marker, Popup, Tooltip as LeafletTooltip } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Tooltip as LeafletTooltip,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const COLORS = ["#22c55e", "#facc15", "#ef4444"];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const { stats, aiSummary, recentIssues, loading, error } =
-    useDashboardData();
+  const { stats, aiSummary, recentIssues, loading, error } = useDashboardData();
 
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -34,21 +39,23 @@ const AdminDashboard = () => {
 
   // Demo locations for hotspots (Bangalore areas)
   const demoLocations = {
-    "Whitefield": [12.9698, 77.7500],
-    "Koramangala": [12.9352, 77.6245],
-    "Indiranagar": [12.9784, 77.6408],
-    "Jayanagar": [12.9299, 77.5824],
-    "Rajajinagar": [12.9882, 77.5549],
+    Whitefield: [12.9698, 77.75],
+    Koramangala: [12.9352, 77.6245],
+    Indiranagar: [12.9784, 77.6408],
+    Jayanagar: [12.9299, 77.5824],
+    Rajajinagar: [12.9882, 77.5549],
   };
 
   // Custom red hotspot marker icon
   const hotspotIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+    shadowSize: [41, 41],
   });
 
   /* ================= CATEGORY CHART DATA ================= */
@@ -163,7 +170,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-
       <Navbar />
 
       {/* HERO */}
@@ -199,10 +205,16 @@ const AdminDashboard = () => {
       {/* STATS */}
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-4 gap-6">
-        <StatCard title="Total Complaints" value={stats?.totalComplaints || 0} />
+        <StatCard
+          title="Total Complaints"
+          value={stats?.totalComplaints || 0}
+        />
         <StatCard title="Active Clusters" value={stats?.activeClusters || 0} />
         <StatCard title="High Priority" value={stats?.highPriority || 0} />
-        <StatCard title="Avg Resolution Time" value={`${stats?.avgResolutionTime || 0} Days`} />
+        <StatCard
+          title="Avg Resolution Time"
+          value={`${stats?.avgResolutionTime || 0} Days`}
+        />
       </section>
 
       {/* AI INSIGHTS */}
@@ -211,7 +223,6 @@ const AdminDashboard = () => {
         <h2 className="text-2xl font-bold mb-6">AI Complaint Intelligence</h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-
           <InsightCard
             title="Duplicate Reports"
             value={aiSummary?.duplicateReports || 0}
@@ -229,9 +240,18 @@ const AdminDashboard = () => {
             value={stats?.highPriority || 0}
             onClick={() => openDetails("high")}
           />
-
         </div>
       </section>
+
+      <div
+        onClick={() => navigate("/upload-complaints")}
+        className="cursor-pointer bg-white p-6 rounded-xl shadow hover:shadow-lg"
+      >
+        <h3 className="text-lg font-bold">Bulk Complaint Upload</h3>
+        <p className="text-sm text-gray-500 mt-2">
+          Upload a file containing multiple complaints for AI analysis
+        </p>
+      </div>
 
       {/* CITY RISK INDEX */}
 
@@ -248,32 +268,48 @@ const AdminDashboard = () => {
       {/* MAP */}
 
       <section className="max-w-7xl mx-auto px-6 py-10">
-
         <h2 className="text-2xl font-bold mb-6">Geographic Hotspots</h2>
 
         <div className="bg-white rounded-xl shadow p-6">
           <div className="h-[400px] w-full rounded-lg overflow-hidden">
-            <MapContainer center={[12.9716, 77.5946]} zoom={12} style={{ height: '100%', width: '100%' }}>
+            <MapContainer
+              center={[12.9716, 77.5946]}
+              zoom={12}
+              style={{ height: "100%", width: "100%" }}
+            >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              
+
               {Object.entries(demoLocations).map(([area, [lat, lng]]) => {
-                const complaintCount = hotspotData.find(h => h.area === area)?.complaints || Math.floor(Math.random() * 50) + 5;
+                const complaintCount =
+                  hotspotData.find((h) => h.area === area)?.complaints ||
+                  Math.floor(Math.random() * 50) + 5;
                 return (
                   <Marker key={area} position={[lat, lng]} icon={hotspotIcon}>
                     <LeafletTooltip direction="top" offset={[0, -10]} permanent>
                       <div className="text-center text-xs font-bold text-red-600">
-                        🔥 HOTSPOT<br/>{area}
+                        🔥 HOTSPOT
+                        <br />
+                        {area}
                       </div>
                     </LeafletTooltip>
                     <Popup>
                       <div className="text-sm">
-                        <div className="inline-block bg-red-600 text-white px-2 py-1 rounded text-xs font-bold mb-2">🔥 HOTSPOT</div>
+                        <div className="inline-block bg-red-600 text-white px-2 py-1 rounded text-xs font-bold mb-2">
+                          🔥 HOTSPOT
+                        </div>
                         <h4 className="font-bold text-red-600 mt-2">{area}</h4>
-                        <p className="text-gray-700 mt-1">Complaints: <span className="font-semibold text-red-600">{complaintCount}</span></p>
-                        <p className="text-gray-600 text-xs mt-2">High complaint density area</p>
+                        <p className="text-gray-700 mt-1">
+                          Complaints:{" "}
+                          <span className="font-semibold text-red-600">
+                            {complaintCount}
+                          </span>
+                        </p>
+                        <p className="text-gray-600 text-xs mt-2">
+                          High complaint density area
+                        </p>
                       </div>
                     </Popup>
                   </Marker>
@@ -282,15 +318,12 @@ const AdminDashboard = () => {
             </MapContainer>
           </div>
         </div>
-
       </section>
 
       {/* ANALYTICS */}
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-10">
-
         <div className="bg-white p-6 rounded-xl shadow">
-
           <h3 className="font-bold mb-4">Complaint Categories</h3>
 
           <ResponsiveContainer width="100%" height={300}>
@@ -303,11 +336,9 @@ const AdminDashboard = () => {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-
           <h3 className="font-bold mb-4">Top Complaint Areas</h3>
 
           <ResponsiveContainer width="100%" height={300}>
@@ -318,21 +349,16 @@ const AdminDashboard = () => {
               <Bar dataKey="complaints" fill="#3b82f6" />
             </BarChart>
           </ResponsiveContainer>
-
         </div>
-
       </section>
 
       {/* RECENT COMPLAINTS */}
 
       <section className="max-w-7xl mx-auto px-6 pb-16">
-
         <h2 className="text-2xl font-bold mb-4">Recent Complaints</h2>
 
         <div className="overflow-x-auto bg-white rounded-xl shadow">
-
           <table className="w-full text-left text-sm">
-
             <thead className="bg-gray-100 font-semibold">
               <tr>
                 <th className="p-4">Title</th>
@@ -344,7 +370,6 @@ const AdminDashboard = () => {
             </thead>
 
             <tbody>
-
               {recentIssues?.map((issue) => (
                 <tr key={issue._id} className="border-t">
                   <td className="p-4">{issue.title}</td>
@@ -356,17 +381,12 @@ const AdminDashboard = () => {
                   </td>
                 </tr>
               ))}
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
 
       <Footer />
-
     </div>
   );
 };

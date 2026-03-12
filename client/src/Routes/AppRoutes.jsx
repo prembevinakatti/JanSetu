@@ -1,4 +1,5 @@
 import LandingPage from "@/components/LandingPage";
+import UploadComplaints from "@/components/UploadComplaints";
 import AdminDashboard from "@/Pages/Admin/AdminDashboard";
 import AdminHomePage from "@/Pages/Admin/AdminHomePage";
 import AdminLogin from "@/Pages/Admin/AdminLogin";
@@ -47,6 +48,7 @@ const AppRoutes = () => {
         <Route path="/adminprofile" element={<AdminProfile />} />
         <Route path="/issuemanagement" element={<IssueManagement />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/uploadComplaints" element={<UploadComplaints />} />
       </Routes>
     </div>
   );

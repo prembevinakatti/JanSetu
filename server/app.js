@@ -11,11 +11,11 @@ const googleAuthRoute = require("./routes/googleAuth.routes");
 const emailComplaintRoute = require("./routes/emailComplaint.route");
 const connectDB = require("./config/database");
 const fetchUnreadEmails = require("./services/email.service");
+const uploadRoute = require("./routes/uploadComplaints.route");
 
 const app = express();
 
 // fetchUnreadEmails();
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,6 +34,7 @@ app.use("/api/v1/janSetu/history", issueHistoryRoute);
 app.use("/api/v1/janSetu/analytics", analyticsRoute);
 app.use("/api/v1/janSetu/emailComplaints", emailComplaintRoute);
 app.use("/", googleAuthRoute);
+app.use("/api", uploadRoute);
 
 const PORT = process.env.PORT || 5000;
 
