@@ -84,6 +84,19 @@ const issueSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    assignedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+    },
+
+    assignedAt: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );

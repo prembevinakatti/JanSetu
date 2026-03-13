@@ -167,30 +167,66 @@ const ReportIssue = () => {
   /* LOCATION */
 
   const getLocation = () => {
-    if (!navigator.geolocation) return alert("GPS not supported");
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported by this browser");
+      return;
+    }
 
     setLocationLoading(true);
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude, longitude } = pos.coords;
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
 
-      setCoords({ latitude, longitude });
+        console.log("GPS Accuracy:", accuracy);
 
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-      );
+        setCoords({
+          latitude,
+          longitude,
+        });
 
-      const data = await res.json();
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+          );
 
-      setForm((prev) => ({
-        ...prev,
-        location: data.display_name || "",
-      }));
+          const data = await res.json();
 
-      setLocationLoading(false);
-    });
+          setForm((prev) => ({
+            ...prev,
+            location: data.display_name || `${latitude}, ${longitude}`,
+          }));
+        } catch (err) {
+          console.log("Reverse geocode error:", err);
+
+          setForm((prev) => ({
+            ...prev,
+            location: `${latitude}, ${longitude}`,
+          }));
+        }
+
+        setLocationLoading(false);
+      },
+
+      (error) => {
+        setLocationLoading(false);
+
+        if (error.code === 1) {
+          alert("Location permission denied. Please allow GPS.");
+        } else if (error.code === 2) {
+          alert("Location unavailable.");
+        } else if (error.code === 3) {
+          alert("Location request timed out.");
+        }
+      },
+
+      {
+        enableHighAccuracy: true, // VERY IMPORTANT
+        timeout: 15000,
+        maximumAge: 0,
+      },
+    );
   };
-
   /* IMAGES */
 
   const handleImages = (e) => {

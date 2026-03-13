@@ -18,6 +18,9 @@ import MyIssue from "@/Pages/Citizen/MyIssue";
 import NearbyIssuesMap from "@/Pages/Citizen/NearbyIssuesMap";
 import ReportIssue from "@/Pages/Citizen/ReportIssue";
 import TrackIssue from "@/Pages/Citizen/TrackIssue";
+import OfficerDashboard from "@/Pages/Officer/OfficerDashboard";
+import OfficerLogin from "@/Pages/Officer/OfficerLogin";
+import OfficerRegister from "@/Pages/Officer/OfficerRegister";
 import AdminWalletConnect from "@/utils/AdminMetamaskConnect";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
@@ -49,6 +52,11 @@ const AppRoutes = () => {
         <Route path="/issuemanagement" element={<IssueManagement />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/uploadComplaints" element={<UploadComplaints />} />
+
+        {/* Officer Routes */}
+        <Route path="/officer/login" element={<OfficerLogin />} />
+        <Route path="/officer/dashboard" element={<OfficerDashboard />} />
+        <Route path="/officer/register" element={<OfficerRegister />} />
       </Routes>
     </div>
   );

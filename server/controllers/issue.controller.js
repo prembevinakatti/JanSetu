@@ -280,3 +280,45 @@ module.exports.getIssueByFilters = async (req, res) => {
     });
   }
 };
+
+module.exports.assignIssue = async (req, res) => {
+  try {
+    const { issueId, workerId } = req.body;
+
+    const adminId = req.user._id;
+
+    const issue = await issueModel.findById(issueId);
+
+    if (!issue) {
+      return res.status(404).json({
+        message: "Issue not found",
+      });
+    }
+
+    issue.assignedTo = workerId;
+    issue.assignedBy = adminId;
+    issue.assignedAt = new Date();
+    issue.status = "InProgress";
+
+    await issue.save();
+
+    // Save history
+    await issueHistoryModel.create({
+      issueId,
+      status: "InProgress",
+      updatedBy: adminId,
+      remarks: "Issue assigned to worker",
+    });
+
+    res.json({
+      success: true,
+      message: "Issue assigned successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
