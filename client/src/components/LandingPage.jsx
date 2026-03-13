@@ -22,8 +22,8 @@ const LandingPage = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Bridging Citizens & Government  
-              <span className="text-orange-400 block">With Transparency</span>
+              Smart City Complaint Analysis 
+              <span className="text-orange-400 block">and Prioritization System </span>
             </h1>
 
             <p className="mt-4 text-lg opacity-90 max-w-xl">
