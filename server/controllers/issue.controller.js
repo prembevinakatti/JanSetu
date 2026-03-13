@@ -10,6 +10,11 @@ const { analyzeComplaint } = require("../services/ai.service.js");
 const { uploadToPinata } = require("../utils/pinataUpload");
 const crypto = require("crypto");
 const { calculatePriority } = require("../utils/priorityCalculator.js");
+const Officer = require("../models/officer.model");
+const Admin = require("../models/admin.model");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 
 module.exports.createIssue = async (req, res) => {
   try {
@@ -284,7 +289,6 @@ module.exports.getIssueByFilters = async (req, res) => {
 module.exports.assignIssue = async (req, res) => {
   try {
     const { issueId, workerId } = req.body;
-
     const adminId = req.adminId;
 
     const issue = await issueModel.findById(issueId);
@@ -302,7 +306,14 @@ module.exports.assignIssue = async (req, res) => {
 
     await issue.save();
 
-    // Save history
+    /* -------- UPDATE OFFICER -------- */
+
+    await Officer.findByIdAndUpdate(workerId, {
+      $push: { assignedIssues: issueId },
+    });
+
+    /* -------- SAVE HISTORY -------- */
+
     await issueHistoryModel.create({
       issueId,
       status: "InProgress",
@@ -325,7 +336,6 @@ module.exports.assignIssue = async (req, res) => {
 
 module.exports.getAssignedIssues = async (req, res) => {
   try {
-
     const officerId = req.officerId;
 
     const issues = await issueModel
@@ -335,16 +345,13 @@ module.exports.getAssignedIssues = async (req, res) => {
 
     res.json({
       success: true,
-      issues
+      issues,
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.status(500).json({
-      message: "Server error"
+      message: "Server error",
     });
-
   }
 };

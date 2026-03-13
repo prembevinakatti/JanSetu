@@ -59,7 +59,7 @@ const AllIssues = () => {
       try {
         setLoadingUsers(true);
 
-        const res = await apiClient.get("/officers/all");
+        const res = await apiClient.get("/worker/all");
 
         if (res.data.success) {
           setUsers(res.data.officers);
@@ -89,8 +89,10 @@ const AllIssues = () => {
 
       const res = await apiClient.post("/issues/assignIssue", {
         issueId: selectedIssue?._id,
-        officerId: selectedUser,
+        workerId: selectedUser,
       });
+
+      console.log("Assign response:", res.data);
 
       if (res.data.success) {
         alert("Issue assigned successfully");

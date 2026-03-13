@@ -30,7 +30,7 @@ const officerSchema = new mongoose.Schema(
     assignedIssues: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Issue"
+        ref: "Issues"
       }
     ]
   },

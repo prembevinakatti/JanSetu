@@ -122,30 +122,37 @@ module.exports.getAllOfficers = async (req, res) => {
 
 
 
+
+
 module.exports.getAssignedIssues = async (req, res) => {
 
   try {
 
     const officerId = req.officerId;
 
-    const issues = await issueModel
-      .find({ assignedTo: officerId })
-      .populate("createdBy");
+    const officer = await Officer.findById(officerId)
+      .populate({
+        path: "assignedIssues",
+      });
+
+      console.log("Officer assigned issues:", officer.assignedIssues);
 
     res.json({
       success: true,
-      issues
+      issues: officer.assignedIssues
     });
 
   } catch (error) {
+
+    console.log(error);
 
     res.status(500).json({
       message: "Server error"
     });
 
   }
-};
 
+};
 module.exports.updateIssueStatus = async (req, res) => {
 
   try {
