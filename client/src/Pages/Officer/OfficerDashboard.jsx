@@ -8,46 +8,48 @@ const OfficerDashboard = () => {
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
 
-  /* ---------------- FETCH ASSIGNED ISSUES ---------------- */
-
   const fetchIssues = async () => {
-
-    const res = await apiClient.get("/officers/assignedIssues");
-
-    setIssues(res.data.issues);
-
+    try {
+      const res = await apiClient.get("/worker/assignedIssues");
+      setIssues(res.data.issues || []);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-
     fetchIssues();
-
   }, []);
 
-  /* ---------------- UPDATE ISSUE STATUS ---------------- */
-
   const updateIssue = async () => {
+    try {
+      await apiClient.put(`/worker/updateIssue/${selectedIssue._id}`, {
+        status,
+        note
+      });
 
-    await apiClient.put(`/officers/updateIssue/${selectedIssue._id}`, {
-      status,
-      note
-    });
+      alert("Issue updated successfully");
 
-    alert("Issue updated successfully");
+      setSelectedIssue(null);
+      fetchIssues();
 
-    setSelectedIssue(null);
-
-    fetchIssues();
-
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100 p-10">
 
       <h2 className="text-3xl font-bold text-indigo-700 mb-8">
         Assigned Civic Issues
       </h2>
+
+      {issues.length === 0 && (
+        <p className="text-gray-600 text-lg">
+          No issues assigned yet.
+        </p>
+      )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -69,8 +71,6 @@ const OfficerDashboard = () => {
             <p className="text-sm text-gray-600">
               <span className="font-semibold">Location:</span> {issue.address}
             </p>
-
-            {/* STATUS BADGE */}
 
             <span
               className={`inline-block mt-3 px-3 py-1 rounded-full text-xs font-semibold
@@ -100,8 +100,6 @@ const OfficerDashboard = () => {
         ))}
 
       </div>
-
-      {/* ---------------- UPDATE MODAL ---------------- */}
 
       {selectedIssue && (
 
