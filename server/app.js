@@ -29,7 +29,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use("/api/v1/janSetu/auth", authRoute);
-app.use("/api/v1/janSetu/officers", officerRoute);
+app.use("/api/v1/janSetu/worker", officerRoute);
 app.use("/api/v1/janSetu/issues", issueRoute);
 app.use("/api/v1/janSetu/admin", adminRoute);
 app.use("/api/v1/janSetu/history", issueHistoryRoute);
