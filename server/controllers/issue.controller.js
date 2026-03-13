@@ -322,3 +322,29 @@ module.exports.assignIssue = async (req, res) => {
     });
   }
 };
+
+module.exports.getAssignedIssues = async (req, res) => {
+  try {
+
+    const officerId = req.officerId;
+
+    const issues = await issueModel
+      .find({ assignedTo: officerId })
+      .populate("createdBy")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      issues
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server error"
+    });
+
+  }
+};
