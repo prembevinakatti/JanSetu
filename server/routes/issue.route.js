@@ -8,6 +8,7 @@ const {
   assignIssue,
 } = require("../controllers/issue.controller");
 const { default: upload } = require("../middleware/upload");
+const isAdminAuthenticated = require("../middleware/isAdminAuthenticated");
 
 const router = express.Router();
 
@@ -17,6 +18,6 @@ router
 router.route("/getAllIssues").get(isUserAuthenticated, getAllIssues);
 router.route("/getUsersIssues").get(isUserAuthenticated, getUserIssues);
 router.route("/getIssueByFilter").get(isUserAuthenticated, getIssueByFilters);
-router.route("/assignIssue").post(assignIssue);
+router.route("/assignIssue").post(isAdminAuthenticated, assignIssue);
 
 module.exports = router;
