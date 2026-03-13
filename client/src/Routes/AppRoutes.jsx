@@ -54,9 +54,9 @@ const AppRoutes = () => {
         <Route path="/uploadComplaints" element={<UploadComplaints />} />
 
         {/* Officer Routes */}
-        <Route path="/officer/login" element={<OfficerLogin />} />
-        <Route path="/officer/dashboard" element={<OfficerDashboard />} />
-        <Route path="/officer/register" element={<OfficerRegister />} />
+        <Route path="/worker/login" element={<OfficerLogin />} />
+        <Route path="/worker/dashboard" element={<OfficerDashboard />} />
+        <Route path="/worker/register" element={<OfficerRegister />} />
       </Routes>
     </div>
   );
