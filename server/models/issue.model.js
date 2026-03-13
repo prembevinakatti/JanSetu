@@ -43,7 +43,7 @@ const issueSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Reported", "InProgress", "Resolved"],
+      enum: ["Reported", "In Progress", "Resolved"],
       default: "Reported",
     },
     issueHash: {

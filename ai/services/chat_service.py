@@ -8,7 +8,12 @@ async def process_chat(message: str):
     msg = message.lower()
 
     # 🔥 HOTSPOT QUERY
-    if "most complaints" in msg or "hotspot" in msg or "which area" in msg or "which location" in msg:
+    if (
+        "most complaints" in msg
+        or "hotspot" in msg
+        or "which area" in msg
+        or "which location" in msg
+    ):
 
         complaints = list(
             issues_collection.find({}, {"address": 1, "location": 1})
@@ -37,7 +42,7 @@ async def process_chat(message: str):
         }
 
     # 🔥 HIGH PRIORITY COUNT
-    if "high priority" in msg and "count" in msg or "total high priority" in msg:
+    if ("high priority" in msg and "count" in msg) or ("total high priority" in msg):
 
         count = issues_collection.count_documents({
             "priorityLevel": "High"
@@ -46,7 +51,7 @@ async def process_chat(message: str):
         return {
             "type": "count",
             "priority": "High",
-            "value": count
+            "total": count
         }
 
     # 🔥 SHOW HIGH PRIORITY COMPLAINTS
@@ -88,7 +93,7 @@ async def process_chat(message: str):
 
         return {
             "type": "count",
-            "value": count
+            "total": count
         }
 
     # 🔥 OTHERWISE USE LLM

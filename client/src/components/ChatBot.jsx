@@ -10,8 +10,8 @@ const translateText = async (text, targetLang) => {
   try {
     const res = await fetch(
       `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(
-        text,
-      )}`,
+        text
+      )}`
     );
 
     const data = await res.json();
@@ -28,8 +28,8 @@ const ChatBot = () => {
     {
       type: "text",
       sender: "bot",
-      message: "Hello 👋 I am Civic Assistant. How can I help you?",
-    },
+      message: "Hello 👋 I am Civic Assistant. How can I help you?"
+    }
   ]);
 
   const [input, setInput] = useState("");
@@ -64,30 +64,22 @@ const ChatBot = () => {
       hi: "hi-IN",
       kn: "kn-IN",
       te: "te-IN",
-      ta: "ta-IN",
+      ta: "ta-IN"
     };
 
     recognition.lang = langMap[language] || "en-IN";
     recognition.continuous = false;
     recognition.interimResults = false;
 
-    recognition.onstart = () => {
-      setListening(true);
-    };
+    recognition.onstart = () => setListening(true);
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       setInput(transcript);
     };
 
-    recognition.onerror = (event) => {
-      console.log("Speech error:", event.error);
-      setListening(false);
-    };
-
-    recognition.onend = () => {
-      setListening(false);
-    };
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
 
     recognitionRef.current = recognition;
   }, [language]);
@@ -114,7 +106,7 @@ const ChatBot = () => {
 
     setMessages((prev) => [
       ...prev,
-      { type: "text", sender: "user", message: userMessage },
+      { type: "text", sender: "user", message: userMessage }
     ]);
 
     setInput("");
@@ -126,25 +118,41 @@ const ChatBot = () => {
       }
 
       const res = await axios.post(API_URL, {
-        message: userMessage,
+        message: userMessage
       });
 
-      let botData = res.data;
+      let botData = res.data || {};
 
-      if (language !== "en" && botData.type === "text") {
-        const translated = await translateText(botData.message, language);
-        botData.message = translated;
+      /* Ensure valid response structure */
+
+      if (!botData.type) {
+        botData = {
+          type: "text",
+          message: botData.message || "Sorry, I didn't understand."
+        };
       }
 
-      setMessages((prev) => [...prev, { ...botData, sender: "bot" }]);
-    } catch {
+      /* Translate response if needed */
+
+      if (language !== "en" && botData.type === "text") {
+        botData.message = await translateText(botData.message, language);
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...botData,
+          sender: "bot"
+        }
+      ]);
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           type: "text",
           sender: "bot",
-          message: "⚠ Server error. Please try again.",
-        },
+          message: "⚠ Server error. Please try again."
+        }
       ]);
     }
 
@@ -156,6 +164,8 @@ const ChatBot = () => {
   const renderMessage = (msg, index) => {
     if (!msg) return null;
 
+    /* TEXT MESSAGE */
+
     if (msg.type === "text") {
       return (
         <div key={index} className={`chat-bubble ${msg.sender}`}>
@@ -164,16 +174,21 @@ const ChatBot = () => {
       );
     }
 
-    if (msg.type === "complaints" && Array.isArray(msg.data)) {
+    /* COMPLAINT CARDS */
+
+    if (msg.type === "complaints") {
       return (
         <div key={index} className="chat-bubble bot">
+
           <div className="complaint-summary">
             <strong>Total High Priority Complaints:</strong> {msg.total || 0}
           </div>
 
           <div className="card-list">
-            {msg.data.map((c, i) => (
+
+            {(msg.data || []).map((c, i) => (
               <div key={i} className="complaint-card">
+
                 <h4>{c.title || "Complaint"}</h4>
 
                 <div className="complaint-meta">
@@ -181,35 +196,46 @@ const ChatBot = () => {
                     {c.status || "Reported"}
                   </span>
 
-                  <span className="category">{c.category || "General"}</span>
+                  <span className="category">
+                    {c.category || "General"}
+                  </span>
                 </div>
 
                 <p className="location">
                   📍 {c.location || "Location not available"}
                 </p>
+
               </div>
             ))}
+
           </div>
+
         </div>
       );
     }
 
+    /* TOTAL COUNT */
+
     if (msg.type === "count") {
       return (
         <div key={index} className="chat-bubble bot">
+
           <div className="stat-card">
-            <h4>Total Web Complaints</h4>
-            <div className="stat-value">{msg.total}</div>
+            <h4>Total Complaints</h4>
+            <div className="stat-value">{msg.total || 0}</div>
           </div>
+
         </div>
       );
     }
+
+    /* HOTSPOT */
 
     if (msg.type === "hotspot") {
       return (
         <div key={index} className="chat-bubble bot">
           <strong>{msg.location}</strong>
-          <div>{msg.count} complaints</div>
+          <div>{msg.count || 0} complaints</div>
         </div>
       );
     }
@@ -231,10 +257,13 @@ const ChatBot = () => {
 
       {isOpen && (
         <div className="chat-container">
+
           {/* HEADER */}
 
           <div className="chat-header">
+
             Civic Assistant
+
             <div className="language-selector">
               🌐
               <select
@@ -248,12 +277,15 @@ const ChatBot = () => {
                 <option value="ta">🇮🇳 Tamil</option>
               </select>
             </div>
+
             <span onClick={() => setIsOpen(false)}>✖</span>
+
           </div>
 
           {/* CHAT BODY */}
 
           <div className="chat-body">
+
             {messages.map((msg, index) => renderMessage(msg, index))}
 
             {loading && (
@@ -265,11 +297,13 @@ const ChatBot = () => {
             )}
 
             <div ref={chatEndRef}></div>
+
           </div>
 
           {/* INPUT */}
 
           <div className="chat-footer">
+
             <button className="mic-btn" onClick={startVoice}>
               {listening ? "🎙 Listening..." : "🎤"}
             </button>
@@ -282,7 +316,9 @@ const ChatBot = () => {
             />
 
             <button onClick={sendMessage}>Send</button>
+
           </div>
+
         </div>
       )}
     </>
