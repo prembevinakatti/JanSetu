@@ -23,7 +23,7 @@ const OfficerRegister = () => {
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
 
         <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">
-          Officer Registration
+          Worker Registration
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +69,7 @@ const OfficerRegister = () => {
           />
 
           <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition">
-            Register Officer
+            Register 
           </button>
 
         </form>
