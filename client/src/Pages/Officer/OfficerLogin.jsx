@@ -12,11 +12,11 @@ const OfficerLogin = () => {
   const login = async(e)=>{
     e.preventDefault();
 
-    const res = await apiClient.post("/officers/login",{ email,password });
+    const res = await apiClient.post("/worker/login",{ email,password });
 
     localStorage.setItem("officerToken",res.data.token);
 
-    navigate("/officer/dashboard");
+    navigate("/worker/dashboard");
   };
 
   return (

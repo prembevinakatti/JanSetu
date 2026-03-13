@@ -13,7 +13,7 @@ const OfficerRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await apiClient.post("/officers/register", form);
+    const res = await apiClient.post("/worker/register", form);
     alert(res.data.message);
   };
 
