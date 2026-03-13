@@ -2,6 +2,7 @@ const Officer = require("../models/officer.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const issueModel = require("../models/issue.model");
+const issueHistoryModel = require("../models/issueHistory.model");
 
 
 
