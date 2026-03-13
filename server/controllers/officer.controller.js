@@ -75,9 +75,15 @@ module.exports.loginOfficer = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    res.cookie("officerToken", token, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.json({
       success: true,
-      token,
+      message: "Login successful",
       officer
     });
 
@@ -138,4 +144,56 @@ module.exports.getAssignedIssues = async (req, res) => {
     });
 
   }
+};
+
+module.exports.updateIssueStatus = async (req, res) => {
+
+  try {
+
+    const officerId = req.officerId;
+    const { id } = req.params;
+    const { status, note } = req.body;
+
+    const issue = await issueModel.findById(id);
+
+    if (!issue) {
+      return res.status(404).json({
+        message: "Issue not found"
+      });
+    }
+
+    if (issue.assignedTo.toString() !== officerId) {
+      return res.status(403).json({
+        message: "Not authorized to update this issue"
+      });
+    }
+
+    issue.status = status;
+
+    await issue.save();
+
+    /* Save history */
+
+    await issueHistoryModel.create({
+      issueId: issue._id,
+      status: status,
+      updatedBy: officerId,
+      remarks: note || "Updated by officer"
+    });
+
+    res.json({
+      success: true,
+      message: "Issue updated successfully"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server error"
+    });
+
+  }
+
 };
