@@ -285,7 +285,7 @@ module.exports.assignIssue = async (req, res) => {
   try {
     const { issueId, workerId } = req.body;
 
-    const adminId = req.user._id;
+    const adminId = req.adminId;
 
     const issue = await issueModel.findById(issueId);
 
