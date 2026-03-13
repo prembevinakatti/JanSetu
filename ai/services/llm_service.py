@@ -1,6 +1,5 @@
 import requests
 import json
-import os
 
 HF_TOKEN = "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"
 
@@ -10,31 +9,34 @@ headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
 }
 
-def generate_mongo_query(user_question: str):
+def generate_mongo_query(user_question):
 
     prompt = f"""
-You are a strict MongoDB query generator.
+You generate MongoDB queries.
 
-Return ONLY JSON in this format:
+Return ONLY JSON.
+
+Format:
 {{
-  "type": "find" OR "count" OR "hotspot",
-  "filters": {{}},
-  "limit": 10
+"type": "find" OR "count",
+"filters": {{}},
+"limit": 10
 }}
 
-Available fields:
-priorityLevel: High, Medium, Low
-status: Open, Resolved, InProgress, Reported
-location: string
+Fields:
+priorityLevel: High Medium Low
+status: Reported InProgress Resolved
+category: string
+address: string
 
-User Question:
+User question:
 {user_question}
 """
 
     payload = {
         "inputs": prompt,
         "parameters": {
-            "max_new_tokens": 200,
+            "max_new_tokens": 150,
             "temperature": 0.1
         }
     }
@@ -45,8 +47,13 @@ User Question:
 
     try:
         text = result[0]["generated_text"]
-        json_start = text.find("{")
-        json_text = text[json_start:]
+
+        start = text.find("{")
+        end = text.rfind("}") + 1
+
+        json_text = text[start:end]
+
         return json.loads(json_text)
+
     except:
         return None

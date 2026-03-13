@@ -24,7 +24,6 @@ const adminSchema = new mongoose.Schema({
   },
   metamaskWallet: {
     type: String,
-    required: true, 
   },
 });
 

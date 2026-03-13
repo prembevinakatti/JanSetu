@@ -3,6 +3,7 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const authRoute = require("./routes/auth.route");
+const officerRoute = require("./routes/officer.route");
 const issueRoute = require("./routes/issue.route");
 const adminRoute = require("./routes/admin.route");
 const issueHistoryRoute = require("./routes/issueHistory.route");
@@ -28,6 +29,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use("/api/v1/janSetu/auth", authRoute);
+app.use("/api/v1/janSetu/officers", officerRoute);
 app.use("/api/v1/janSetu/issues", issueRoute);
 app.use("/api/v1/janSetu/admin", adminRoute);
 app.use("/api/v1/janSetu/history", issueHistoryRoute);

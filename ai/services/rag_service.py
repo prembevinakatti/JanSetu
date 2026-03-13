@@ -5,7 +5,7 @@ from utils.db import issues_collection, email_collection
 
 
 # ✅ Load API key
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY is not set in environment variables.")

@@ -5,6 +5,7 @@ const {
   getAllIssues,
   getUserIssues,
   getIssueByFilters,
+  assignIssue,
 } = require("../controllers/issue.controller");
 const { default: upload } = require("../middleware/upload");
 
@@ -16,4 +17,6 @@ router
 router.route("/getAllIssues").get(isUserAuthenticated, getAllIssues);
 router.route("/getUsersIssues").get(isUserAuthenticated, getUserIssues);
 router.route("/getIssueByFilter").get(isUserAuthenticated, getIssueByFilters);
+router.route("/assignIssue").post(assignIssue);
+
 module.exports = router;
