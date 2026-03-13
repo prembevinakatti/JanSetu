@@ -12,6 +12,7 @@ const [selectedStage, setSelectedStage] = useState(null);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const { issues, loading } = useGetAllIssues();
+  console.log(issues);
 
   useEffect(() => {
   const fetchHistory = async () => {

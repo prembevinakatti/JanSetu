@@ -243,14 +243,24 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      <div
-        onClick={() => navigate("/upload-complaints")}
-        className="cursor-pointer bg-white p-6 rounded-xl shadow hover:shadow-lg"
-      >
-        <h3 className="text-lg font-bold">Bulk Complaint Upload</h3>
-        <p className="text-sm text-gray-500 mt-2">
-          Upload a file containing multiple complaints for AI analysis
-        </p>
+      <div className="flex  items-center justify-center">
+        <div className="bg-white p-5 rounded-xl shadow w-full max-w-md mt-6">
+          <h3 className="text-lg font-semibold">Bulk Complaint Upload</h3>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Upload CSV or PDF files containing multiple complaints for AI
+            analysis.
+          </p>
+
+          <div className="mt-4">
+            <button
+              onClick={() => navigate("/upload-complaints")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+            >
+              Upload File
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* CITY RISK INDEX */}
