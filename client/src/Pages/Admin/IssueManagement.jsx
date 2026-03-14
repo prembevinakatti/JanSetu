@@ -251,29 +251,83 @@ const IssueManagement = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {viewModal.description && (
-                <>
+              {/* BASIC INFO */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 p-4 rounded-xl border space-y-2">
+                  <h3 className="font-semibold text-gray-700">
+                    Complaint Info
+                  </h3>
+
                   <p>
-                    <strong>Description:</strong>
+                    <strong>Title:</strong> {viewModal.title}
                   </p>
 
-                  <div className="bg-gray-50 p-4 rounded border">
+                  <p>
+                    <strong>Category:</strong> {viewModal.category || "N/A"}
+                  </p>
+
+                  <p>
+                    <strong>Status:</strong> {viewModal.status}
+                  </p>
+
+                  <p>
+                    <strong>Priority:</strong>
+                    <span
+                      className={`ml-2 px-2 py-1 text-xs rounded-full ${getPriorityColor(
+                        viewModal.priorityLevel,
+                      )}`}
+                    >
+                      {viewModal.priorityLevel}
+                    </span>
+                  </p>
+                </div>
+
+                {/* LOCATION */}
+                <div className="bg-gray-50 p-4 rounded-xl border space-y-2">
+                  <h3 className="font-semibold text-gray-700">Location Info</h3>
+
+                  <p>
+                    <strong>Address:</strong> {viewModal.address}
+                  </p>
+
+                  
+                </div>
+              </div>
+
+              {/* DESCRIPTION */}
+              {viewModal.description && (
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    Description
+                  </h3>
+
+                  <div className="bg-gray-50 p-4 rounded-xl border text-gray-700">
                     {viewModal.description}
                   </div>
-                </>
+                </div>
               )}
 
-              {viewModal.body && (
-                <>
-                  <p>
-                    <strong>Email Body:</strong>
-                  </p>
+              {/* IMAGE */}
+              {viewModal.image && viewModal.image.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    Complaint Image
+                  </h3>
 
-                  <div className="bg-gray-50 p-4 rounded border whitespace-pre-line">
-                    {viewModal.body}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {viewModal.image.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt="complaint"
+                        className="rounded-xl object-cover w-full h-40 border shadow hover:scale-105 transition"
+                      />
+                    ))}
                   </div>
-                </>
+                </div>
               )}
+
+              
             </div>
           </div>
         </div>
