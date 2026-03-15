@@ -304,6 +304,7 @@ const IssueManagement = () => {
                   <div className="bg-gray-50 p-4 rounded-xl border text-gray-700">
                     {viewModal.description}
                   </div>
+                  
                 </div>
               )}
 
