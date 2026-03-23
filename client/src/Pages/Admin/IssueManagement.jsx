@@ -307,7 +307,6 @@ const IssueManagement = () => {
                   
                 </div>
               )}
-
               
 
               {/* IMAGE */}
