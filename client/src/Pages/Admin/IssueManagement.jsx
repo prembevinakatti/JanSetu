@@ -308,6 +308,7 @@ const IssueManagement = () => {
                 </div>
               )}
               
+              
 
               {/* IMAGE */}
               {viewModal.image && viewModal.image.length > 0 && (
