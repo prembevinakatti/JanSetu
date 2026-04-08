@@ -1,5 +1,5 @@
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import React, { useState, useEffect, useRef } from "react";
 import { Loader2, Camera, MapPin, X, Mic } from "lucide-react";
 import apiClient from "@/api/apiClient";
@@ -300,7 +300,7 @@ const ReportIssue = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <DashboardNavbar />
 
       {/* LANGUAGE SELECTOR */}
 

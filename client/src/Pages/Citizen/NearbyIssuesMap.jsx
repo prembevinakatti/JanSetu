@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "@/utils/leafletIconFix";
@@ -43,7 +43,7 @@ const NearbyIssuesMap = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <DashboardNavbar />
 
       {/* HERO */}
       <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white py-14 px-6 mt-16">

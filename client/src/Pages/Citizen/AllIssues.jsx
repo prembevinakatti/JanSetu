@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 import useGetAllIssues from "@/hooks/useGetAllIssues";
 import { CheckCircle, Clock, AlertCircle } from "lucide-react";
@@ -127,7 +127,7 @@ const AllIssues = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <DashboardNavbar />
 
       {/* HEADER */}
 

@@ -18,6 +18,7 @@ import MyIssue from "@/Pages/Citizen/MyIssue";
 import NearbyIssuesMap from "@/Pages/Citizen/NearbyIssuesMap";
 import ReportIssue from "@/Pages/Citizen/ReportIssue";
 import TrackIssue from "@/Pages/Citizen/TrackIssue";
+import RewardsLeaderboard from "@/Pages/Citizen/RewardsLeaderboard";
 import OfficerDashboard from "@/Pages/Officer/OfficerDashboard";
 import OfficerLogin from "@/Pages/Officer/OfficerLogin";
 import OfficerRegister from "@/Pages/Officer/OfficerRegister";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
         <Route path="/trackissue" element={<TrackIssue />} />
         <Route path="/myissue" element={<MyIssue />} />
         <Route path="/allissue" element={<AllIssues />} />
+        <Route path="/rewardsleaderboard" element={<RewardsLeaderboard />} />
         <Route path="/metamask" element={<AdminWalletConnect />} />
 
         {/* Admin Routes */}

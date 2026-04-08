@@ -119,10 +119,12 @@ module.exports.createIssue = async (req, res) => {
       userProfile = await userProfileModel.create({
         userId,
         issuesReported: 1,
+        rewardPoints: 10,
         issues: [newIssue._id],
       });
     } else {
       userProfile.issuesReported += 1;
+      userProfile.rewardPoints += 10;
       userProfile.issues.push(newIssue._id);
       await userProfile.save();
     }

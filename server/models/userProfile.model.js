@@ -10,6 +10,10 @@ const userProfile = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  rewardPoints: {
+    type: Number,
+    default: 0,
+  },
   issues: [
     {
       type: mongoose.Schema.Types.ObjectId,

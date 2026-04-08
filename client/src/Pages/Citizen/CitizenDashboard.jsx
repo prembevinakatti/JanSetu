@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "@/components/Navbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,7 @@ const CitizenDashboard = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <DashboardNavbar />
 
       {/* HERO */}
       <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white py-14 px-6 mt-16">

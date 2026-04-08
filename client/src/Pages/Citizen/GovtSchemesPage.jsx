@@ -1,11 +1,11 @@
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import React from "react";
 
 const GovtSchemesPage = () => {
   return (
     <div className="min-h-screen bg-gray-100">
-     <Navbar/>
+     <DashboardNavbar/>
       {/* HERO SECTION */}
       <section className="bg-gradient-to-r from-blue-900 mt-16 via-blue-700 to-blue-500 text-white py-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
