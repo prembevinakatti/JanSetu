@@ -71,6 +71,7 @@ const RewardsLeaderboard = () => {
     if (rank === 3) return "🥉";
     return `#${rank}`;
   };
+  
 
   const getTierBadge = (rank) => {
     if (rank === 1) return { text: "Champion", color: "bg-amber-100 text-amber-800" };
@@ -212,7 +213,7 @@ const RewardsLeaderboard = () => {
                   })}
                 </div>
               </div>
-              
+
 
               {/* Full Leaderboard Table */}
               <div>
