@@ -212,6 +212,7 @@ const RewardsLeaderboard = () => {
                   })}
                 </div>
               </div>
+              
 
               {/* Full Leaderboard Table */}
               <div>
