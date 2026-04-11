@@ -27,7 +27,6 @@ const UploadComplaints = () => {
         priorityOrder[b.priorityLevel] - priorityOrder[a.priorityLevel]
     );
 
-    
     setResults(sorted);
     console.log(sorted)
   };
