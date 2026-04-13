@@ -31,6 +31,8 @@ const UploadComplaints = () => {
     console.log(sorted)
   };
 
+  
+
   /* ================= HOTSPOTS ================= */
 
   const hotspots = useMemo(() => {
