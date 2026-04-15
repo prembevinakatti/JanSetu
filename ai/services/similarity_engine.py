@@ -30,6 +30,7 @@ def detect_similar(new_embedding):
         ])
     )
 
+
     best_score = 0.0
     best_cluster_id = None
 
