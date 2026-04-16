@@ -13,6 +13,7 @@ if not GROQ_API_KEY:
 client = Groq(api_key=GROQ_API_KEY)
 
 
+
 # ✅ Fetch and normalize both schemas
 def fetch_relevant_data():
 
