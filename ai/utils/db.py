@@ -9,8 +9,6 @@ client = MongoClient(MONGO_URI)
 # database
 db = client["test"]
 
-
-
 # collections
 issues_collection = db["issues"]
 email_collection = db["emailcomplaints"]
