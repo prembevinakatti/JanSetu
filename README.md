@@ -1,2 +1,1 @@
-# JanSetu :- Smart civic complaint prioritization system.. 
-
+# JanSetu :- Smart civic complaint prioritization system.
